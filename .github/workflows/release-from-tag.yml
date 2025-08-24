@@ -43,10 +43,10 @@ jobs:
       - name: Generate release notes from commits
         run: |
           if [ -n "${{ steps.meta.outputs.prev }}" ]; then
-            git-cliff --config cliff.toml --range "${{ steps.meta.outputs.prev }}..${{ steps.meta.outputs.tag }}" \
+            git-cliff --config cliff.toml "${{ steps.meta.outputs.prev }}..${{ steps.meta.outputs.tag }}" \
               --tag "${{ steps.meta.outputs.tag }}" --output RELEASE_NOTES.md
           else
-            git-cliff --config cliff.toml --range "..${{ steps.meta.outputs.tag }}" \
+            git-cliff --config cliff.toml "..${{ steps.meta.outputs.tag }}" \
               --tag "${{ steps.meta.outputs.tag }}" --output RELEASE_NOTES.md
           fi
           head -n 100 RELEASE_NOTES.md || true
