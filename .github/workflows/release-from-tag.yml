@@ -22,7 +22,7 @@ jobs:
 
       - name: Ensure tag is on main
         run: |
-          git fetch origin main --prune --depth=0
+          git fetch origin main --prune
           if git merge-base --is-ancestor "${GITHUB_SHA}" "origin/main"; then
             echo "Tag on main ✅"
           else
@@ -38,7 +38,7 @@ jobs:
           echo "prev=$PREV" >> $GITHUB_OUTPUT
 
       - name: Set up git-cliff
-        uses: kenji-miyake/setup-git-cliff@v1
+        uses: kenji-miyake/setup-git-cliff@v2
 
       - name: Generate release notes from commits
         run: |
