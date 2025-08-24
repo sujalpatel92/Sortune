@@ -1,0 +1,31 @@
+name: Bug
+description: Something not working as expected
+labels: [bug]
+body:
+- type: input
+id: summary
+attributes:
+label: Summary
+placeholder: e.g., Dedupe removes non-duplicates when titles contain hyphens
+validations:
+required: true
+- type: textarea
+id: steps
+attributes:
+label: Steps to Reproduce
+value: |
+1. Command run
+2. Input data (redact IDs if needed)
+3. Observed behavior
+4. Expected behavior
+validations:
+required: true
+- type: textarea
+id: logs
+attributes:
+label: Logs / Output / Screenshots
+- type: input
+id: version
+attributes:
+label: Version
+placeholder: sortune v0.1.0-rc1, Python 3.12

@@ -1,0 +1,53 @@
+name: Feature
+description: New capability or user-visible change
+labels: [feature]
+body:
+- type: input
+id: summary
+attributes:
+label: Summary
+description: One-line description
+placeholder: e.g., Dedupe exact by videoId
+validations:
+required: true
+- type: textarea
+id: context
+attributes:
+label: Context / Rationale
+description: Why this matters; link to plan sections
+placeholder: Links, screenshots, examples
+- type: textarea
+id: scope
+attributes:
+label: Scope
+description: What's in and out for this feature
+- type: textarea
+id: acceptance
+attributes:
+label: Acceptance Criteria
+description: Checklist that must pass before closing
+value: |
+- [ ] CLI command(s) implemented
+- [ ] Dry-run behaves deterministically
+- [ ] Logs + HTML/CSV outputs validated
+- [ ] Tests added (unit/integration where applicable)
+- [ ] Docs updated (README/Examples)
+validations:
+required: true
+- type: dropdown
+id: risk
+attributes:
+label: Risk Level
+options:
+- Low
+- Medium
+- High
+validations:
+required: true
+- type: checkboxes
+id: links
+attributes:
+label: Links
+options:
+- label: Linked to milestone v0.1.0 - First Release
+- label: Linked PR will include test evidence and screenshots

@@ -1,0 +1,27 @@
+name: Task
+description: Internal task, refactor, infra, docs, etc.
+labels: [infra]
+body:
+- type: input
+id: summary
+attributes:
+label: Summary
+placeholder: e.g., Set up Typer skeleton
+validations:
+required: true
+- type: textarea
+id: steps
+attributes:
+label: Steps
+value: |
+- [ ] Implement
+- [ ] Tests
+- [ ] Docs
+- type: checkboxes
+id: done
+attributes:
+label: Definition of Done
+options:
+- label: Tests added/updated
+- label: CI green
+- label: Docs updated
