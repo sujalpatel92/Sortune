@@ -1,12 +1,12 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.25", "hatch-vcs>=0.4", "setuptools-scm>=8"]
 build-backend = "hatchling.build"
 
 [project]
 name = "sortune-api"
-version = "0.1.0"
 description = "Sortune FastAPI service"
 requires-python = ">=3.12"
+dynamic = ["version"]
 
 # API-specific deps. Local pkgs (sortune-core, sortune-adapters, sortune-ai)
 # are installed via editable installs from the repo root using uv.
@@ -19,3 +19,21 @@ dependencies = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["sortune_api"]
+
+[tool.hatch.version]
+# This is the correct way to specify the version file
+source = "vcs"
+path = "sortune_api/_version.py"
+
+[tool.hatch.version.vcs]
+root = "../../"                # repo root relative to THIS pyproject
+relative_to = "pyproject.toml" # anchor paths to this file
+tag_regex = "^v(?P<version>\\d+(?:\\.\\d+){2,3}.*)$"  # accepts 3- or 4-part versions
+
+[tool.hatch.build.hooks.vcs]
+version-file = "sortune_api/_version.py"
+
+# For compatibility & local tools
+[tool.setuptools_scm]
+search_parent_directories = true
+fallback_version = "0.0.0"

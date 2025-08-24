@@ -1,0 +1,15 @@
+name: Release Checklist
+description: Steps to cut and verify a release
+labels: [release]
+body:
+- type: textarea
+id: checklist
+attributes:
+label: Checklist
+value: |
+- [ ] All v0.1.0 issues closed or moved
+- [ ] Coverage ≥ 85% for ops
+- [ ] README Quickstart validated on clean machine
+- [ ] Example HTML/CSV reports attached
+- [ ] Tag v0.1.0 created; wheels+sdist uploaded
+- [ ] Release notes drafted and published

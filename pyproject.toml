@@ -1,15 +1,15 @@
 # Root is a meta project used only for dev tooling (no code is shipped).
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.25", "hatch-vcs>=0.4"]
 build-backend = "hatchling.build"
 
 [project]
 name = "sortune"
-version = "0.1.0"
 description = "AI-assisted YouTube Music playlist manager (monorepo: api, worker, ui, packages)"
 readme = "README.md"
 requires-python = ">=3.12"
+dynamic = ["version"]
 
 # Dev tools live here so you can `uv pip install -e .[dev]`
 [project.optional-dependencies]
@@ -27,6 +27,17 @@ dev = [
 # Tell Hatch there are no packages to ship from the root.
 [tool.hatch.build]
 skip-include = true
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+# This creates a _version.py at build time so your package can expose __version__
+version-file = "_version.py"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "v$version"
 
 # ---------- Tooling configs ----------
 [tool.pytest.ini_options]
