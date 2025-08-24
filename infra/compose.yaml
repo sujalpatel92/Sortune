@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: infra/docker/api.Dockerfile
+    container_name: sortune-api
+    environment:
+      - SORTUNE_ENV=dev
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - ../.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ..:/app
+    working_dir: /app
+    depends_on:
+      - redis
+
+  worker:
+    build:
+      context: ..
+      dockerfile: infra/docker/worker.Dockerfile
+    container_name: sortune-worker
+    environment:
+      - SORTUNE_ENV=dev
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - ../.env
+    volumes:
+      - ..:/app
+    working_dir: /app
+    depends_on:
+      - redis
+
+  ui:
+    build:
+      context: ..
+      dockerfile: infra/docker/ui.Dockerfile
+    container_name: sortune-ui
+    environment:
+      - SORTUNE_ENV=dev
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - ../.env
+    ports:
+      - "8501:8501"
+    volumes:
+      - ..:/app
+    working_dir: /app
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    container_name: sortune-redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "no"]

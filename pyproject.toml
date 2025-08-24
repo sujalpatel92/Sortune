@@ -1,9 +1,15 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "sortune"
 version = "0.1.0"
-description = "Add your description here"
+description = "AI-assisted YouTube Music playlist manager (monorepo: api, worker, ui, packages)"
 readme = "README.md"
 requires-python = ">=3.12"
+
+# Root deps. These support AI features and adapters.
 dependencies = [
     "langchain>=0.3.27",
     "langchain-community>=0.3.27",
@@ -15,3 +21,63 @@ dependencies = [
     "python-dotenv>=1.1.1",
     "ytmusicapi>=1.11.0",
 ]
+
+# Optional extras for app-specific installs
+[project.optional-dependencies]
+api = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "redis>=5.0",
+]
+worker = [
+    "rq>=1.16",
+    "redis>=5.0",
+]
+ui = [
+    "streamlit>=1.37",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "mypy>=1.10",
+    "ruff>=0.5.0",
+    "httpx>=0.27",
+    "types-redis>=4.6.0.20240425",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["apps", "packages"]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = [
+    "dist",
+    "build",
+    ".venv",
+    ".uv",
+]
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+fixable = ["ALL"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = false
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_return_any = true
+exclude = [
+    "dist",
+    "build",
+    "\\.venv",
+    "\\.uv",
+]
+
+# uv-specific niceties (optional)
+[tool.uv]
+# Enable editable installs to resolve local packages quickly
+# You can add custom indexes/proxies here if needed.
