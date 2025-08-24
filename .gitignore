@@ -42,8 +42,10 @@ env/
 env.bak/
 venv.bak/
 
+# uv local cache (package manager)
+.uv/
+
 # PyInstaller
-# Usually these files are written by a python script from a template
 *.manifest
 *.spec
 
@@ -130,3 +132,15 @@ client_secrets.json
 
 # Cache
 cache/
+.cache/
+
+# Data
+data/
+*.parquet
+
+# Docker
+*.log
+docker-volume/
+
+# Streamlit
+.streamlit/
