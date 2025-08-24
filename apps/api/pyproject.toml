@@ -21,12 +21,19 @@ dependencies = [
 packages = ["sortune_api"]
 
 [tool.hatch.version]
+# This is the correct way to specify the version file
 source = "vcs"
+path = "sortune_api/_version.py"
+
+[tool.hatch.version.vcs]
+root = "../../"                # repo root relative to THIS pyproject
+relative_to = "pyproject.toml" # anchor paths to this file
+tag_regex = "^v(?P<version>\\d+(?:\\.\\d+){2,3}.*)$"  # accepts 3- or 4-part versions
 
 [tool.hatch.build.hooks.vcs]
 version-file = "sortune_api/_version.py"
 
-# Lets version detection work from temp build dirs
+# For compatibility & local tools
 [tool.setuptools_scm]
 search_parent_directories = true
 fallback_version = "0.0.0"

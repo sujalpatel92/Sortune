@@ -17,6 +17,12 @@ packages = ["sortune_worker"]
 
 [tool.hatch.version]
 source = "vcs"
+path = "sortune_worker/_version.py"
+
+[tool.hatch.version.vcs]
+root = "../../"                # repo root relative to THIS pyproject
+relative_to = "pyproject.toml" # anchor paths to this file
+tag_regex = "^v(?P<version>\\d+(?:\\.\\d+){2,3}.*)$"  # accepts 3- or 4-part versions
 
 [tool.hatch.build.hooks.vcs]
 version-file = "sortune_worker/_version.py"
