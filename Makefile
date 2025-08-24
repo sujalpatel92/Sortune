@@ -14,26 +14,26 @@ install:
 
 fmt:
 	# Format and auto-fix
-	$(UV) run ruff format .
-	$(UV) run ruff check . --fix
+	$(UV) run --no-project ruff format .
+	$(UV) run --no-project ruff check . --fix
 
 lint:
 	# Lint only (no fixes)
-	$(UV) run ruff check .
+	$(UV) run --no-project ruff check .
 
 typecheck:
-	$(UV) run mypy packages/
+	$(UV) run --no-project mypy packages/
 
 test:
-	$(UV) run pytest -q
+	$(UV) run --no-project pytest -q
 
 api:
 	# FastAPI (hot reload)
-	$(UV) run uvicorn sortune_api.main:app --host 0.0.0.0 --port 8000 --reload
+	$(UV) run --no-project uvicorn sortune_api.main:app --host 0.0.0.0 --port 8000 --reload
 
 worker:
 	# RQ worker attached to local Redis (ensure Redis is running)
-	$(UV) run $(PY) -c "from rq import Worker, Connection; from redis import Redis; \
+	$(UV) run --no-project $(PY) -c "from rq import Worker, Connection; from redis import Redis; \
 r=Redis.from_url('redis://localhost:6379/0'); \
 import sys; \
 print('Starting worker on default queue...'); \
@@ -42,7 +42,7 @@ with Connection(r): Worker(['default']).work()"
 
 ui:
 	# Streamlit demo UI
-	$(UV) run streamlit run apps/ui/streamlit_app/app.py --server.port=8501 --server.address=0.0.0.0
+	$(UV) run --no-project streamlit run apps/ui/streamlit_app/app.py --server.port=8501 --server.address=0.0.0.0
 
 dev-up:
 	docker compose -f $(COMPOSE) up --build
