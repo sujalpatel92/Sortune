@@ -1,0 +1,22 @@
+name-template: "v$NEXT_PATCH_VERSION"
+tag-template: "v$NEXT_PATCH_VERSION"
+change-template: "- $TITLE (#$NUMBER) @$AUTHOR"
+categories:
+  - title: "🚀 Features"
+    labels: ["feature", "enhancement"]
+  - title: "🐞 Fixes"
+    labels: ["fix", "bug"]
+  - title: "🧰 Maintenance"
+    labels: ["chore", "refactor", "deps", "ci"]
+  - title: "🧪 Tests"
+    labels: ["test", "tests"]
+exclude-labels:
+  - "skip-changelog"
+template: |
+  ## What's Changed
+
+  $CHANGES
+
+  ---
+
+  _This draft is auto-updated on every merge to `main`._
