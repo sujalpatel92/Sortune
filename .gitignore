@@ -121,3 +121,12 @@ cython_debug/
 # macOS / Linux system files
 .DS_Store
 Thumbs.db
+
+# Environment Files
+.env
+credentials.json
+oauth.json
+client_secrets.json
+
+# Cache
+cache/
