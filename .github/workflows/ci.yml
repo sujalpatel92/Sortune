@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install uv
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+    - name: Install Dependencies
+      run: |
+        uv pip compile pyproject.toml --extra dev | uv pip install -r -
+        uv pip install -e packages/core -e packages/adapters -e packages/ai -e apps/api -e apps/worker
+        uv pip install streamlit
+
+    - name: Lint
+      run: make lint
+
+    - name: Typecheck
+      run: make typecheck
+
+    - name: Test
+      run: make test
