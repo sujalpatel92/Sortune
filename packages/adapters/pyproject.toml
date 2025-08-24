@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.25", "hatch-vcs>=0.4"]
+requires = ["hatchling>=1.25", "hatch-vcs>=0.4", "setuptools-scm>=8"]
 build-backend = "hatchling.build"
 
 [project]
@@ -16,7 +16,14 @@ dependencies = [
 packages = ["sortune_adapters"]
 
 [tool.hatch.version]
+# This is the correct way to specify the version file
 source = "vcs"
+path = "sortune_adapters/_version.py"
 
-[tool.hatch.build.hooks.vcs]
-version-file = "sortune_adapters/_version.py"
+[tool.hatch.version.vcs]
+# These options are passed to setuptools-scm
+# Assumes this file is two directories deep from the repo root (e.g., repo-root/packages/adapters/pyproject.toml)
+root = "../../"
+search_parent_directories = true
+tag_regex = "^v(?P<version>\\d+\\.\\d+\\.\\d+.*)$"
+fallback_version = "0.0.0"

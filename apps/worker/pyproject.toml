@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.25", "hatch-vcs>=0.4"]
+requires = ["hatchling>=1.25", "hatch-vcs>=0.4", "setuptools-scm>=8"]
 build-backend = "hatchling.build"
 
 [project]
@@ -20,3 +20,8 @@ source = "vcs"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "sortune_worker/_version.py"
+
+# Lets version detection work from temp build dirs
+[tool.setuptools_scm]
+search_parent_directories = true
+fallback_version = "0.0.0"

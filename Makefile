@@ -36,6 +36,7 @@ help:
 
 install:
 	# Editable installs for local dev
+	$(UV) pip compile pyproject.toml --extra dev | $(UV) pip install -r -
 	$(UV) pip install -e packages/core -e packages/adapters -e packages/ai
 	$(UV) pip install -e apps/api -e apps/worker
 	$(UV) pip install streamlit
