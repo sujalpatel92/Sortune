@@ -1,10 +1,12 @@
-from ytmusicapi import YTMusic, OAuthCredentials
-from typing import Any
 import json
 import os
+from typing import Any
+
 from dotenv import load_dotenv
+from ytmusicapi import OAuthCredentials, YTMusic
 
 load_dotenv()
+
 
 def write_to_cache(cache_file_name: str, data: list[dict[str, Any]]):
     if not data:
@@ -13,12 +15,14 @@ def write_to_cache(cache_file_name: str, data: list[dict[str, Any]]):
     with open(filepath, "w") as f:
         json.dump(data, f, indent=4)
 
+
 def get_from_cache(cache_file_name: str) -> list[dict[str, Any]]:
     if not os.path.exists(os.path.join("cache", cache_file_name)):
         return None
     filepath = os.path.join("cache", cache_file_name)
-    with open(filepath, "r") as f:
+    with open(filepath) as f:
         return json.load(f)
+
 
 def get_playlists_of_interest(playlists: list[dict[str, Any]]):
     if not playlists:
@@ -34,7 +38,12 @@ def get_playlists_of_interest(playlists: list[dict[str, Any]]):
 
 
 if __name__ == "__main__":
-    yt = YTMusic("oauth.json", oauth_credentials=OAuthCredentials(client_id=os.getenv("YT_API_CLIENT_ID"), client_secret=os.getenv("YT_API_CLIENT_SECRET")))
+    yt = YTMusic(
+        "oauth.json",
+        oauth_credentials=OAuthCredentials(
+            client_id=os.getenv("YT_API_CLIENT_ID"), client_secret=os.getenv("YT_API_CLIENT_SECRET")
+        ),
+    )
 
     playlists = get_from_cache("playlists.json")
     if not playlists:

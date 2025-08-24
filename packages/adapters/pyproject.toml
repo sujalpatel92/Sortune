@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sortune-adapters"
+version = "0.1.0"
+description = "External integrations for Sortune (YouTube Music, storage, telemetry)"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.11.7",
+    "redis>=5.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["sortune_adapters"]

@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sortune-worker"
+version = "0.1.0"
+description = "Background worker for Sortune (RQ + Redis)"
+requires-python = ">=3.12"
+dependencies = [
+  "rq>=1.16",
+  "redis>=5.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["sortune_worker"]

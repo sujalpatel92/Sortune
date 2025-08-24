@@ -1,14 +1,13 @@
-from typing import List, Optional
-from pydantic import BaseModel, Field
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import JsonOutputParser
-from langchain_openai import ChatOpenAI  # OpenAI GPT backend
-from langchain_ollama import ChatOllama   # Local Ollama backend
-from dotenv import load_dotenv
-import os
 import json
-from typing import Any
-from ytmusicapi import YTMusic, OAuthCredentials
+import os
+
+from dotenv import load_dotenv
+from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_ollama import ChatOllama  # Local Ollama backend
+from langchain_openai import ChatOpenAI  # OpenAI GPT backend
+from pydantic import BaseModel, Field
+from ytmusicapi import OAuthCredentials, YTMusic
 
 load_dotenv()
 
@@ -17,26 +16,26 @@ PLAYLIST_ID = os.getenv("YT_PLAYLIST_ID")
 if not PLAYLIST_ID or not PLAYLIST_NAME:
     raise ValueError("Missing YT_PLAYLIST_ID or YT_PLAYLIST_NAME in environment")
 
+
 # --------- Output schema ---------
 class TagCategories(BaseModel):
-    genre: List[str] = Field(default_factory=list, description="Genre or sub-genre tags")
-    mood: List[str] = Field(default_factory=list, description="Mood/emotion tags")
-    context: List[str] = Field(default_factory=list, description="Context/use-case tags")
-    era: List[str] = Field(default_factory=list, description="Era/decade tags")
-    language: List[str] = Field(default_factory=list, description="Language/region tags")
-    special: List[str] = Field(default_factory=list, description="Special attributes (remix, acoustic, soundtrack, etc.)")
+    genre: list[str] = Field(default_factory=list, description="Genre or sub-genre tags")
+    mood: list[str] = Field(default_factory=list, description="Mood/emotion tags")
+    context: list[str] = Field(default_factory=list, description="Context/use-case tags")
+    era: list[str] = Field(default_factory=list, description="Era/decade tags")
+    language: list[str] = Field(default_factory=list, description="Language/region tags")
+    special: list[str] = Field(
+        default_factory=list, description="Special attributes (remix, acoustic, soundtrack, etc.)"
+    )
+
 
 class PlaylistTagsCategorized(BaseModel):
-    tags: List[str] = Field(
-        ..., description="Flat list of all tags merged across categories"
+    tags: list[str] = Field(..., description="Flat list of all tags merged across categories")
+    by_category: TagCategories = Field(..., description="Structured tags grouped by category")
+    sources: list[str] | None = Field(
+        None, description="Up to 3 credible URLs consulted if internet search was needed"
     )
-    by_category: TagCategories = Field(
-        ..., description="Structured tags grouped by category"
-    )
-    sources: Optional[List[str]] = Field(
-        None,
-        description="Up to 3 credible URLs consulted if internet search was needed"
-    )
+
 
 # --------- Prompt + Parser ---------
 parser = JsonOutputParser(pydantic_object=PlaylistTagsCategorized)
@@ -80,9 +79,9 @@ Constraints:
 {format_instructions}
 """
 
-prompt = ChatPromptTemplate.from_messages(
-    [("system", SYSTEM), ("user", USER)]
-).partial(format_instructions=parser.get_format_instructions())
+prompt = ChatPromptTemplate.from_messages([("system", SYSTEM), ("user", USER)]).partial(
+    format_instructions=parser.get_format_instructions()
+)
 
 
 # --------- Chain builder ---------
@@ -102,11 +101,7 @@ def build_playlist_chain(
     else:
         raise ValueError("backend must be 'openai' or 'ollama'")
 
-    chain = (
-        prompt
-        | llm
-        | parser
-    )
+    chain = prompt | llm | parser
     return chain
 
 
@@ -132,9 +127,13 @@ def suggest_playlist_names(
     )
 
 
-
 if __name__ == "__main__":
-    yt = YTMusic("oauth.json", oauth_credentials=OAuthCredentials(client_id=os.getenv("YT_API_CLIENT_ID"), client_secret=os.getenv("YT_API_CLIENT_SECRET")))
+    yt = YTMusic(
+        "oauth.json",
+        oauth_credentials=OAuthCredentials(
+            client_id=os.getenv("YT_API_CLIENT_ID"), client_secret=os.getenv("YT_API_CLIENT_SECRET")
+        ),
+    )
     playlist = yt.get_playlist(PLAYLIST_ID)
     title = playlist["title"]
     description = playlist["description"]
@@ -151,4 +150,3 @@ if __name__ == "__main__":
         print(f"Artists: {artists}")
         tags = suggest_playlist_names(json.dumps(track), min_tags=3, max_tags=8)
         print(tags)
-

@@ -1,31 +1,28 @@
-from typing import List, Optional
-from pydantic import BaseModel, Field
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import JsonOutputParser
-from langchain_core.runnables import RunnableLambda
-from langchain_openai import ChatOpenAI  # OpenAI GPT backend
-from langchain_ollama import ChatOllama   # Local Ollama backend
-from dotenv import load_dotenv
-import os
 import json
+import os
 from typing import Any
 
+from dotenv import load_dotenv
+from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_ollama import ChatOllama  # Local Ollama backend
+from langchain_openai import ChatOpenAI  # OpenAI GPT backend
+from pydantic import BaseModel, Field
+
 load_dotenv()
+
 
 # --------- Output schema ---------
 class PlaylistName(BaseModel):
     title: str = Field(..., description="Short, catchy playlist title")
-    subtitle: Optional[str] = Field(
-        None, description="Optional subtitle or tagline that adds flavor"
-    )
+    subtitle: str | None = Field(None, description="Optional subtitle or tagline that adds flavor")
     rationale: str = Field(
         ..., description="1-2 sentence explanation tying the title to the inputs"
     )
 
+
 class PlaylistSuggestions(BaseModel):
-    names: List[PlaylistName] = Field(
-        ..., description="List of suggested playlist names"
-    )
+    names: list[PlaylistName] = Field(..., description="List of suggested playlist names")
 
 
 # --------- Prompt + Parser ---------
@@ -53,9 +50,9 @@ Style constraints:
 {format_instructions}
 """
 
-prompt = ChatPromptTemplate.from_messages(
-    [("system", SYSTEM), ("user", USER)]
-).partial(format_instructions=parser.get_format_instructions())
+prompt = ChatPromptTemplate.from_messages([("system", SYSTEM), ("user", USER)]).partial(
+    format_instructions=parser.get_format_instructions()
+)
 
 
 # --------- Chain builder ---------
@@ -75,18 +72,14 @@ def build_playlist_chain(
     else:
         raise ValueError("backend must be 'openai' or 'ollama'")
 
-    chain = (
-        prompt
-        | llm
-        | parser
-    )
+    chain = prompt | llm | parser
     return chain
 
 
 # --------- Convenience wrapper ---------
 def suggest_playlist_names(
-    artists: List[str],
-    albums: List[str],
+    artists: list[str],
+    albums: list[str],
     date: str,
     count: int = 10,
     tone: str = "modern, sleek, slightly moody",
@@ -110,16 +103,17 @@ def suggest_playlist_names(
         }
     )
 
+
 def get_data_from_cache(cache_file_name: str) -> list[dict[str, Any]]:
     if not os.path.exists(os.path.join("cache", cache_file_name)):
         return None
     filepath = os.path.join("cache", cache_file_name)
-    with open(filepath, "r") as f:
+    with open(filepath) as f:
         return json.load(f)
+
 
 # --------- Example usage ---------
 if __name__ == "__main__":
-
     albums_list = get_data_from_cache("albums.json")
     artists_list = get_data_from_cache("artists.json")
 
@@ -140,7 +134,7 @@ if __name__ == "__main__":
         tone="sleek, contemporary, minimal",
         audience="YouTube Music / Spotify users",
         backend="openai",
-        model="gpt-5-nano",   # e.g., "gpt-4.1" or "gpt-4o"
+        model="gpt-5-nano",  # e.g., "gpt-4.1" or "gpt-4o"
         temperature=0.9,
     )
     print(suggestions)
