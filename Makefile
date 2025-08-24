@@ -34,20 +34,20 @@ help:
 	@echo "  make release VERSION=0.2.0"
 	@echo "  make changelog TAG=v0.2.0"
 
+# Editable installs for local dev
 install:
-	# Editable installs for local dev
 	$(UV) pip compile pyproject.toml --extra dev | $(UV) pip install -r -
 	$(UV) pip install -e packages/core -e packages/adapters -e packages/ai
 	$(UV) pip install -e apps/api -e apps/worker
 	$(UV) pip install streamlit
 
+# Format and auto-fix
 fmt:
-	# Format and auto-fix
 	$(UV) run --no-project ruff format .
 	$(UV) run --no-project ruff check . --fix
 
+# Lint only (no fixes)
 lint:
-	# Lint only (no fixes)
 	$(UV) run --no-project ruff check .
 
 typecheck:
@@ -56,12 +56,12 @@ typecheck:
 test:
 	$(UV) run --no-project pytest -q
 
+# Run FastAPI API (hot reload)
 api:
-	# FastAPI (hot reload)
 	$(UV) run --no-project uvicorn sortune_api.main:app --host 0.0.0.0 --port 8000 --reload
 
+# Run RQ worker (requires local Redis)
 worker:
-	# RQ worker attached to local Redis (ensure Redis is running)
 	$(UV) run --no-project $(PY) -c "from rq import Worker, Connection; from redis import Redis; \
 r=Redis.from_url('redis://localhost:6379/0'); \
 import sys; \
@@ -69,8 +69,8 @@ print('Starting worker on default queue...'); \
 from rq import Queue; \
 with Connection(r): Worker(['default']).work()"
 
+# Run Streamlit demo UI
 ui:
-	# Streamlit demo UI
 	$(UV) run --no-project streamlit run apps/ui/streamlit_app/app.py --server.port=8501 --server.address=0.0.0.0
 
 dev-up:
@@ -113,8 +113,6 @@ release: guard-main guard-clean guard-synced
 changelog:
 	@test -n "$(TAG)" || (echo "Usage: make changelog TAG=v0.1.0"; exit 1)
 	@gh --version >/dev/null 2>&1 || (echo "✖ GitHub CLI not installed or not on PATH"; exit 1)
-	# EITHER call by workflow name (as set in the YAML)...
 	@gh workflow run "Update CHANGELOG.md via PR (manual)" -f tag=$(TAG) --ref $(BRANCH) || \
-	# ...OR by filename if you prefer:
 	gh workflow run .github/workflows/publish-release.yml -f tag=$(TAG) --ref $(BRANCH)
 	@echo "📝 Requested CHANGELOG PR for $(TAG). Check Actions/PRs."
