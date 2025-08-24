@@ -46,18 +46,29 @@ jobs:
       - name: Set up git-cliff
         uses: kenji-miyake/setup-git-cliff@v2
 
-      - name: Prepend new section to CHANGELOG.md
+      - name: Update CHANGELOG.md (prepend single release section)
         run: |
           set -euo pipefail
           TAG="${{ github.event.inputs.tag }}"
-          test -f CHANGELOG.md || echo "# Changelog" > CHANGELOG.md
-          # Render the section for exactly this tag using your cliff.toml
-          git-cliff --config cliff.toml --tag "$TAG" > NEW.md
-          # Prepend with a blank line separator between sections
-          awk 'FNR==1 && NR!=1{print ""}1' NEW.md CHANGELOG.md > CHANGELOG.new
-          mv CHANGELOG.new CHANGELOG.md
-          rm NEW.md
+      
+          # If there is no changelog yet, create one (with header+preamble) for this tag only.
+          if [ ! -f CHANGELOG.md ]; then
+            git-cliff --config cliff.toml --tag "$TAG" --output CHANGELOG.md
+          else
+            # Prepend only the new release section (no header/footer), keeping existing content intact.
+            git-cliff --config cliff.toml \
+              --tag "$TAG" \
+              --strip header \
+              --strip footer \
+              --prepend CHANGELOG.md
+          fi
+      
           git add CHANGELOG.md
+
+      - name: Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Create PR
         uses: peter-evans/create-pull-request@v6
@@ -67,3 +78,6 @@ jobs:
           commit-message: "chore(changelog): add ${{ github.event.inputs.tag }}"
           body: "Automated changelog update for ${{ github.event.inputs.tag }}."
           base: main
+          labels: chore,changelog,automation
+          draft: false
+
