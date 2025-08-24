@@ -32,6 +32,16 @@ jobs:
     - name: Create virtual environment
       run: uv venv
 
+    - name: Get latest tag and set version
+      id: meta
+      run: |
+        TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+        echo "tag_name=$TAG" >> $GITHUB_OUTPUT
+        echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+
+    - name: Set version env var for setuptools-scm
+      run: echo "SETUPTOOLS_SCM_PRETEND_VERSION=${{ steps.meta.outputs.version }}" >> $GITHUB_ENV
+
     - name: Install Dependencies
       run: |
         uv pip compile pyproject.toml --extra dev | uv pip install -r -
