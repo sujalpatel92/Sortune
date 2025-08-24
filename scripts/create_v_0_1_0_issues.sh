@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-MS="v0.1.0 – First Release"
+MS="v0.1.0 - First Release"
 
 
 # A) Foundations

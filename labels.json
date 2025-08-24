@@ -1,0 +1,59 @@
+{
+    "labels": [
+        {
+            "name": "core",
+            "color": "1d76db",
+            "description": "MVP must-have features"
+        },
+        {
+            "name": "optional",
+            "color": "bfdadc",
+            "description": "Nice-to-have / stretch goals"
+        },
+        {
+            "name": "infra",
+            "color": "e4e669",
+            "description": "Infrastructure, CI, tooling, packaging"
+        },
+        {
+            "name": "bug",
+            "color": "d73a4a",
+            "description": "Something is not working"
+        },
+        {
+            "name": "feature",
+            "color": "a2eeef",
+            "description": "New user-facing feature"
+        },
+        {
+            "name": "release",
+            "color": "0e8a16",
+            "description": "Release tracking and checklist"
+        },
+        {
+            "name": "good-first-issue",
+            "color": "7057ff",
+            "description": "Easy entry issues for newcomers"
+        },
+        {
+            "name": "docs",
+            "color": "cfd3d7",
+            "description": "Documentation updates"
+        },
+        {
+            "name": "api",
+            "color": "0052cc",
+            "description": "API client and integration tasks"
+        },
+        {
+            "name": "cli",
+            "color": "5319e7",
+            "description": "CLI commands and UX"
+        },
+        {
+            "name": "ai",
+            "color": "ff9f1c",
+            "description": "AI assist, LLM-related tasks"
+        }
+    ]
+}

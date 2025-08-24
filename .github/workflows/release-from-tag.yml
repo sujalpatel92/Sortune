@@ -1,0 +1,61 @@
+name: Release from tag (git-cliff)
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Ensure tag is on main
+        run: |
+          git fetch origin main --prune --depth=0
+          if git merge-base --is-ancestor "${GITHUB_SHA}" "origin/main"; then
+            echo "Tag on main ✅"
+          else
+            echo "Tag not on main ❌"; exit 1
+          fi
+
+      - name: Derive tag & previous tag
+        id: meta
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          PREV="$(git describe --abbrev=0 --tags "${TAG}^" 2>/dev/null || true)"
+          echo "tag=$TAG"   >> $GITHUB_OUTPUT
+          echo "prev=$PREV" >> $GITHUB_OUTPUT
+
+      - name: Install git-cliff
+        uses: orhun/git-cliff-action@v3
+        with:
+          version: "latest"
+
+      - name: Generate release notes from commits
+        run: |
+          if [ -n "${{ steps.meta.outputs.prev }}" ]; then
+            git-cliff --config cliff.toml --range "${{ steps.meta.outputs.prev }}..${{ steps.meta.outputs.tag }}" \
+              --tag "${{ steps.meta.outputs.tag }}" --output RELEASE_NOTES.md
+          else
+            git-cliff --config cliff.toml --range "..${{ steps.meta.outputs.tag }}" \
+              --tag "${{ steps.meta.outputs.tag }}" --output RELEASE_NOTES.md
+          fi
+          head -n 100 RELEASE_NOTES.md || true
+
+      - name: Create GitHub Release with notes
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          body_path: RELEASE_NOTES.md
+          generate_release_notes: false

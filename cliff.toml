@@ -1,0 +1,34 @@
+[changelog]
+header = "# Changelog\n\n"
+body = """
+## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date("%Y-%m-%d") }}
+
+{% if commits | length == 0 %}_No changes._{% else %}
+{% for group, commits in commits | group_by(attribute="group") -%}
+### {{ group }}
+{% for c in commits -%}
+- {{ c.message | first_line | trim }} ({{ c.id | truncate(length=7) }}){% if c.breaking %} **BREAKING**{% endif %}
+{% endfor %}
+
+{%- endfor -%}
+{% endif %}
+"""
+footer = "\n"
+
+[git]
+conventional_commits = true
+filter_commits = true
+split_commits = false
+commit_parsers = [
+  { message = "^feat",      group = "Added" },
+  { message = "^fix",       group = "Fixed" },
+  { message = "^perf",      group = "Performance" },
+  { message = "^refactor",  group = "Changed" },
+  { message = "^docs",      group = "Docs" },
+  { message = "^test",      group = "Tests" },
+  { message = "^build|^ci", group = "Build/CI" },
+  { message = "^chore",     group = "Chore" },
+]
+protect_breaking_commits = true
+breaking_change_identifiers = ["BREAKING CHANGE", "BREAKING"]
+exclude_commits = ["Merge branch", "Merge pull request"]
