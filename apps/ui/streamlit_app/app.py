@@ -63,7 +63,8 @@ st.markdown("---")
 pl = st.session_state.get("pl")
 if not pl:
     st.info(
-        "No playlist loaded yet. Try **Seed demo playlist** in the sidebar, then click **Load playlist**."
+        "No playlist loaded yet. Try **Seed demo playlist** in the sidebar, "
+        "then click **Load playlist**."
     )
 else:
     st.subheader(pl.name or pid)
