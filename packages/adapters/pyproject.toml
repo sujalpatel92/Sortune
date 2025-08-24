@@ -1,12 +1,12 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.25", "hatch-vcs>=0.4"]
 build-backend = "hatchling.build"
 
 [project]
 name = "sortune-adapters"
-version = "0.0.0"
 description = "External integrations for Sortune (YouTube Music, storage, telemetry)"
 requires-python = ">=3.12"
+dynamic = ["version"]
 dependencies = [
     "pydantic>=2.11.7",
     "redis>=5.0",
@@ -14,3 +14,9 @@ dependencies = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["sortune_adapters"]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "sortune_adapters/_version.py"
