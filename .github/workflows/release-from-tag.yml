@@ -37,10 +37,8 @@ jobs:
           echo "tag=$TAG"   >> $GITHUB_OUTPUT
           echo "prev=$PREV" >> $GITHUB_OUTPUT
 
-      - name: Install git-cliff
-        uses: orhun/git-cliff-action@v3
-        with:
-          version: "latest"
+      - name: Set up git-cliff
+        uses: kenji-miyake/setup-git-cliff@v1
 
       - name: Generate release notes from commits
         run: |
