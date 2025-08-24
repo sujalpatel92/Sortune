@@ -1,16 +1,23 @@
 [changelog]
 header = "# Changelog\n\n"
 body = """
-## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date("%Y-%m-%d") }}
+{% if version %}## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}{% else %}## [Unreleased]{% endif %}
 
-{% if commits | length == 0 %}_No changes._{% else %}
-{% for group, commits in commits | group_by(attribute="group") -%}
+{% if commits | length == 0 %}
+_No changes._
+{% else %}
+{% for group, items in commits | group_by(attribute="group") %}
 ### {{ group }}
-{% for c in commits -%}
-- {{ c.message | first_line | trim }} ({{ c.id | truncate(length=7) }}){% if c.breaking %} **BREAKING**{% endif %}
+{% for c in items %}
+- {{ c.message
+     | replace(from="\r\n", to=" ")
+     | replace(from="\n",   to=" ")
+     | replace(from="\r",   to=" ")
+     | trim
+  }} ({{ c.id | truncate(length=7) }}){% if c.breaking %} **BREAKING**{% endif %}
 {% endfor %}
 
-{%- endfor -%}
+{% endfor %}
 {% endif %}
 """
 footer = "\n"
@@ -27,7 +34,7 @@ commit_parsers = [
   { message = "^docs",      group = "Docs" },
   { message = "^test",      group = "Tests" },
   { message = "^build|^ci", group = "Build/CI" },
-  { message = "^chore",     group = "Chore" },
+  { message = "^chore",     group = "Chore" }
 ]
 protect_breaking_commits = true
 breaking_change_identifiers = ["BREAKING CHANGE", "BREAKING"]
