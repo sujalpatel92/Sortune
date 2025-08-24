@@ -1,0 +1,110 @@
+name: Publish release from tag
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Derive tag & date
+        id: meta
+        run: |
+          TAG="${GITHUB_REF##*/}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "today=$(date -u +%F)" >> $GITHUB_OUTPUT
+
+      - name: Update CHANGELOG.md (stamp version & fix compare links)
+        id: changelog
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.meta.outputs.tag }}"
+          TODAY="${{ steps.meta.outputs.today }}"
+
+          if [ ! -f CHANGELOG.md ]; then
+            echo "CHANGELOG.md not found"; exit 1
+          fi
+
+          # Insert a new version heading under [Unreleased]
+          # Example target heading to create: ## [0.3.0] - 2025-08-24
+          VERSION="${TAG#v}"
+
+          # 1) Ensure there is an [Unreleased] section (create if missing)
+          if ! grep -qE '^## \[Unreleased\]' CHANGELOG.md; then
+            printf "# Changelog\n\n## [Unreleased]\n\n" | cat - CHANGELOG.md > CHANGELOG.tmp && mv CHANGELOG.tmp CHANGELOG.md
+          fi
+
+          # 2) Insert the new version heading right after [Unreleased]
+          awk -v ver="$VERSION" -v today="$TODAY" '
+            BEGIN { inserted=0 }
+            {
+              print $0
+              if ($0 ~ /^## \[Unreleased\]/ && inserted==0) {
+                print ""
+                print "## [" ver "] - " today
+                print "### Added"
+                print "- (fill me in or rely on release notes below)"
+                print ""
+                inserted=1
+              }
+            }
+          ' CHANGELOG.md > CHANGELOG.tmp && mv CHANGELOG.tmp CHANGELOG.md
+
+          # 3) Fix compare links at the bottom:
+          #    - Update [Unreleased] to compare vX.Y.Z...HEAD
+          #    - Add a new line for [X.Y.Z] that compares previous tag...this tag
+          PREV_TAG="$(git tag --sort=-creatordate | grep -v "^$TAG$" | head -n1 || true)"
+
+          # Ensure link refs exist; if not, append a block
+          if ! grep -qE '^\[Unreleased\]:' CHANGELOG.md; then
+            cat >> CHANGELOG.md <<'EOF'
+
+[Unreleased]: https://github.com/your-org/ytmusic-experiments/compare/v0.0.0...HEAD
+EOF
+          fi
+
+          # Update Unreleased link to point from current tag
+          perl -0777 -pe "s|(\\[Unreleased\\]:\\s*https://github\\.com/[^/]+/[^/]+/compare/)v?[0-9]+\\.[0-9]+\\.[0-9]+\\.\\.\\.HEAD|\\1${TAG}...HEAD|g" \
+            -i CHANGELOG.md
+
+          # Add link for this version if missing
+          if ! grep -qE "^\\[$VERSION\\]:" CHANGELOG.md; then
+            if [ -n "$PREV_TAG" ]; then
+              echo "[$VERSION]: https://github.com/your-org/ytmusic-experiments/compare/${PREV_TAG}...${TAG}" >> CHANGELOG.md
+            else
+              echo "[$VERSION]: https://github.com/your-org/ytmusic-experiments/compare/${TAG}^...${TAG}" >> CHANGELOG.md
+            fi
+          fi
+
+          echo "Previous tag: ${PREV_TAG:-<none>}"
+          echo "Changelog updated."
+
+      - name: Commit CHANGELOG update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update CHANGELOG for ${{ steps.meta.outputs.tag }}"
+            git push origin HEAD:main
+          else
+            echo "No CHANGELOG changes to commit."
+          fi
+
+      - name: Create GitHub Release (auto notes)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
