@@ -3,14 +3,24 @@ set -euo pipefail
 
 UV="${UV:-uv}"
 PY="${PY:-python}"
-COMPOSE_FILE="infra/compose.yaml"
+COMPOSE_FILE="${COMPOSE_FILE:-infra/compose.yaml}"
 UVRUN="${UV} run --no-project"
-# Derive version from latest tag; fall back to 0.0.0
-TAG := $(shell git describe --tags --abbrev=0 2>/dev/null || echo v0.0.0)
-VERSION := $(patsubst v%,%,$(TAG))
 
-# Make this available to all recipe commands (like the GH Action env step)
-export SETUPTOOLS_SCM_PRETEND_VERSION := $(VERSION)
+# Derive version from latest tag; fall back to 0.0.0
+# Example tags: v0.1.0, v0.1.0-rc1 — we just strip the leading 'v'
+TAG="$(git describe --tags --abbrev=0 2>/dev/null || echo 'v0.0.0')"
+VERSION="${TAG#v}"
+
+# Make these available to child processes (docker compose, build steps, etc.)
+export COMPOSE_FILE
+export SETUPTOOLS_SCM_PRETEND_VERSION="${VERSION}"
+
+# (optional) debug
+# echo "TAG=${TAG}"
+# echo "VERSION=${VERSION}"
+# echo "COMPOSE_FILE=${COMPOSE_FILE}"
+# echo "SETUPTOOLS_SCM_PRETEND_VERSION=${SETUPTOOLS_SCM_PRETEND_VERSION}"
+
 
 usage() {
   cat <<'EOF'
