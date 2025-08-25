@@ -5,6 +5,12 @@ UV="${UV:-uv}"
 PY="${PY:-python}"
 COMPOSE_FILE="infra/compose.yaml"
 UVRUN="${UV} run --no-project"
+# Derive version from latest tag; fall back to 0.0.0
+TAG := $(shell git describe --tags --abbrev=0 2>/dev/null || echo v0.0.0)
+VERSION := $(patsubst v%,%,$(TAG))
+
+# Make this available to all recipe commands (like the GH Action env step)
+export SETUPTOOLS_SCM_PRETEND_VERSION := $(VERSION)
 
 usage() {
   cat <<'EOF'
