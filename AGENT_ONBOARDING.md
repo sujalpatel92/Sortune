@@ -1,17 +1,21 @@
 # Agent Onboarding: Sortune Repository
 
-Welcome, fellow AI! This document is your guide to understanding and contributing to the **Sortune** repository.
+Welcome, fellow AI (and humans)! This guide helps you understand and contribute to **Sortune** efficiently.
 
-## 1. Project Overview
+## 1) What this project is
 
-**Sortune** is an AI-assisted YouTube Music playlist manager. Its goal is to provide tools to curate, sort, and re-title playlists using a combination of a web API, a background worker, and a user interface.
+**Sortune** is an AI-assisted YouTube Music playlist manager. It helps curate, sort, and re-title playlists via:
 
-- **Tech Stack**: Python 3.12, FastAPI, Streamlit, RQ, Redis, Docker.
-- **Package Manager**: `uv`.
+* **FastAPI** backend (`apps/api`)
+* **RQ** worker for background jobs (`apps/worker`)
+* **Streamlit** demo UI (`apps/ui`)
 
-## 2. Repository Structure
+**Stack**: Python 3.12, FastAPI, Streamlit, RQ, Redis, Docker.
+**Package manager**: `uv`.
 
-This is a Python monorepo. It's crucial to understand the layout:
+> If present, agents should first read `repo_state.json` (machine) and `REPO_STATE.md` (human) for a live snapshot of files, CI, and tags.
+
+## 2) Repo structure (monorepo)
 
 ```text
 Sortune/
@@ -24,58 +28,108 @@ Sortune/
 │  ├─ adapters/            # Integrations (Redis, YT Music)
 │  └─ ai/                  # Prompts, schemas, LLM utilities
 ├─ infra/                  # Dockerfiles + docker compose
-├─ scripts/                # Helper scripts
+├─ scripts/                # Helper scripts (dev.sh, seed, etc.)
 ├─ tests/                  # Unit + integration tests
 ├─ .github/                # CI/CD workflows and issue templates
-├─ AGENT_ONBOARDING.md     # This file!
-├─ Makefile                # Common development commands
-├─ pyproject.toml          # ROOT project: for dev tooling ONLY
-└─ README.md
+├─ Makefile                # Common developer commands
+├─ pyproject.toml          # Root: dev tooling ONLY (ruff/mypy/pytest)
+└─ README.md               # Quickstart, architecture
 ```
 
-**Key Architectural Principles**:
+**Principles**
 
-- **Monorepo Separation**: Code is separated into `apps` (runnable applications) and `packages` (sharable libraries).
-- **Dependency Management**:
-    - Each app and package in `apps/` and `packages/` has its **own** `pyproject.toml` for its specific dependencies.
-    - The **root `pyproject.toml`** is ONLY for development tools (`ruff`, `mypy`, `pytest`, etc.). **Do not add application or library dependencies here.**
-- **Editable Installs**: The development setup uses `pip install -e` for all local apps and packages, so changes are reflected immediately.
+* Keep runnable **apps** and reusable **packages** separate.
+* Each subproject has its **own** `pyproject.toml`.
+  The **root** `pyproject.toml` is **tooling only**—don’t add app/package deps there.
+* Dev uses editable installs (`pip install -e`) so code changes reflect immediately.
 
-## 3. Development Workflow
+## 3) First 5 minutes (local dev)
 
-The `scripts/dev.sh` script and the `Makefile` are your primary tools for development. The `Makefile` is slightly more comprehensive.
+```bash
+# 1) Install dev deps + local packages
+make install
 
-**Common Commands**:
+# 2) Start Redis (Docker) in one terminal
+scripts/dev.sh redis
 
-- `make install`: Install all dependencies and local packages.
-- `make api`: Run the FastAPI server locally.
-- `make ui`: Run the Streamlit UI locally.
-- `make worker`: Run the RQ worker.
-- `make dev-up`: Start the entire application stack using Docker Compose.
-- `make dev-down`: Stop the Docker Compose stack.
+# 3) Seed a demo playlist into Redis
+REDIS_URL=redis://localhost:6379/0 scripts/dev.sh seed
 
-## 4. Testing and Quality
+# 4) Run API and UI in separate terminals
+scripts/dev.sh api
+scripts/dev.sh ui
+# Open: API docs → http://localhost:8000/docs
+#       UI → http://localhost:8501  (use playlist id "demo")
+```
 
-Before submitting any changes, you **must** run the quality checks.
+**Docker dev stack**
 
-- `make test`: Run `pytest` for all unit and integration tests.
-- `make fmt`: Format the code with `ruff`.
-- `make typecheck`: Run `mypy` for static type analysis.
-- `scripts/dev.sh all`: A convenient script to run `fmt`, `typecheck`, and `test` in one command.
+```bash
+cp .env.example .env
+scripts/dev.sh up   # brings up API, UI, Worker, Redis
+scripts/dev.sh down
+```
 
-## 5. Key Entry Points
+## 4) Commands you’ll use a lot
 
-- **API**: `apps/api/sortune_api/main.py`
-- **UI**: `apps/ui/streamlit_app/app.py`
-- **Worker Jobs**: Defined in `apps/worker/sortune_worker/jobs/`. See `demo.py` for an example.
+* `make install` — install dev deps + local packages
+* `make api` / `make ui` / `make worker` — run services locally
+* `make fmt` — ruff format & lint fixes
+* `make typecheck` — mypy
+* `make test` — pytest (unit + integration)
+* `make dev-up` / `make dev-down` — compose up/down
 
-## 6. Important "Don'ts" & Guidelines
+## 5) Versioning & releases (important for agents)
 
-- **Do Not Edit Build Artifacts**: Never directly edit files in `dist/`, `build/`, or similar directories. Always modify the source files.
-- **Respect the Monorepo Structure**: When adding a new dependency for the API, add it to `apps/api/pyproject.toml`, not the root `pyproject.toml`.
-- **Run Checks Before Committing**: Always run `make fmt` and `make test` to ensure your changes are clean and don't break anything.
-- **Use the Makefile Guards**: The `Makefile` has `guard-*` targets (`guard-main`, `guard-clean`, `guard-synced`). These are used in the `release` process to prevent common mistakes. Be aware of their purpose.
-- **YouTube Music Adapter is a Stub**: The current `YTMusicClient` in `packages/adapters/` only returns sample data. A real implementation is a future task. Do not assume it connects to the live YouTube Music service.
-- **Environment Variables**: Configuration is managed via environment variables. A `.env.example` file is provided in the root. When running with Docker, this is copied to `.env`.
+* The project uses **tags** (`vX.Y.Z`) and **setuptools-scm** to derive versions.
+* The Makefile exports `SETUPTOOLS_SCM_PRETEND_VERSION` from the latest tag so builds are consistent locally and in CI.
 
-By following these guidelines, you'll be a productive and effective contributor to the Sortune project. Happy coding!
+Example snippet used by the Makefile:
+
+```make
+TAG := $(shell git describe --tags --abbrev=0 2>/dev/null || echo v0.0.0)
+VERSION := $(patsubst v%,%,$(TAG))
+export SETUPTOOLS_SCM_PRETEND_VERSION := $(VERSION)
+```
+
+**CI/CD** (GitHub Actions)
+
+* `ci.yml` runs lint, typecheck, tests.
+* `publish-release.yml` creates a CHANGELOG PR for a given tag on `main`.
+* `release-from-tag.yml` builds a release when a `v*.*.*` tag is pushed (and enforces “tag is on main”).
+
+## 6) Key entry points
+
+* API: `apps/api/sortune_api/main.py`
+* UI: `apps/ui/streamlit_app/app.py`
+* Worker jobs: `apps/worker/sortune_worker/jobs/` (see `demo.py`)
+
+## 7) Important do’s and don’ts
+
+* **Do** add dependencies to the **specific app/package** `pyproject.toml`.
+  **Don’t** add runtime deps to the root `pyproject.toml`.
+* **Do** run `make fmt`, `make typecheck`, and `make test` before proposing changes.
+* **Do** use **Conventional Commits** (e.g., `feat:`, `fix:`, `chore:`) to keep release notes clean.
+* **Don’t** assume the **YouTube Music adapter** is live: it’s a **stub** today; real `ytmusicapi` integration is a TODO.
+* **Don’t** read or commit real secrets: use `.env.example`. `.env` is git-ignored by policy.
+
+## 8) Current limitations & near-term tasks
+
+* YT Music client is a **stub** → integrate `ytmusicapi` and map to `packages/core` models.
+* Add more **playlist rules** (artist diversity, freshness, tempo/energy proxies).
+* Hook up **LLM title generator** from `packages/ai/prompts`.
+* Optional persistence upgrade to Postgres (see `ROADMAP.md`).
+
+## 9) Agent checklist (follow this order)
+
+1. If available, load `repo_state.json` + `REPO_STATE.md` for context.
+2. Never read `.env`; reference `.env.example` for variable names.
+3. For dependency changes, edit the **relevant subproject** `pyproject.toml`.
+4. Implement or modify code under `apps/*` or `packages/*` as appropriate.
+5. Run `make fmt && make typecheck && make test` locally.
+6. Propose a PR with **Conventional Commit** message and brief rationale.
+7. If release-worthy, tag `vX.Y.Z` on `main` (maintainers only) to trigger the release flow.
+
+---
+
+By following this onboarding, both AIs and humans can make safe, fast, high-quality changes to Sortune. Happy hacking!
