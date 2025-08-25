@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Artist(BaseModel):
@@ -20,4 +20,5 @@ class Playlist(BaseModel):
     id: str
     name: str
     description: str | None = None
-    tracks: list[Track] = []
+    # IMPORTANT: avoid shared mutable default list across instances
+    tracks: list[Track] = Field(default_factory=list)

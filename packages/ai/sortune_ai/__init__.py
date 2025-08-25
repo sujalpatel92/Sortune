@@ -6,6 +6,7 @@ Contains:
 - Prompt templates for playlist naming/curation
 - Utilities for chaining with LangChain or direct API calls
 """
+
 try:
     from ._version import __version__
 except Exception:

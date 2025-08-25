@@ -3,13 +3,23 @@
 Generate repo_state.json (machine) and REPO_STATE.md (human).
 Safe to run in any repo without internet. Python 3.10+ recommended.
 """
-import os, re, json, sys, subprocess, pathlib, hashlib
-from datetime import datetime, UTC
+
+import hashlib
+import json
+import os
+import pathlib
+import re
+import subprocess
+from datetime import UTC, datetime
 
 ROOT = pathlib.Path.cwd()
 
+
 def sh(cmd: str) -> str:
-    return subprocess.run(cmd, shell=True, check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True).stdout.strip()
+    return subprocess.run(
+        cmd, shell=True, check=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+    ).stdout.strip()
+
 
 def read_text(paths):
     for p in paths:
@@ -21,8 +31,9 @@ def read_text(paths):
                 return ""
     return ""
 
+
 def list_files():
-    out = sh(r'git ls-files 2>/dev/null')
+    out = sh(r"git ls-files 2>/dev/null")
     if out:
         return out.splitlines()
     # Fallback if not a git repo
@@ -31,6 +42,7 @@ def list_files():
         if p.is_file() and ".git" not in p.parts:
             files.append(str(p.relative_to(ROOT)))
     return files
+
 
 def file_digest(path):
     try:
@@ -42,6 +54,7 @@ def file_digest(path):
     except Exception:
         return None
 
+
 def detect_langs(files):
     exts = {}
     for f in files:
@@ -50,10 +63,11 @@ def detect_langs(files):
     top = sorted(exts.items(), key=lambda x: (-x[1], x[0]))[:12]
     return [{"ext": k or "(no-ext)", "count": v} for k, v in top]
 
+
 def grep_versions():
     data = {}
     # Python
-    for fn in ("pyproject.toml","requirements.txt","Pipfile","environment.yml"):
+    for fn in ("pyproject.toml", "requirements.txt", "Pipfile", "environment.yml"):
         txt = read_text([fn])
         if txt:
             data.setdefault("python", {})[fn] = txt
@@ -61,23 +75,28 @@ def grep_versions():
     pkg = read_text(["package.json"])
     if pkg:
         data.setdefault("node", {})["package.json"] = pkg
-        lock = read_text(["package-lock.json","pnpm-lock.yaml","yarn.lock"])
-        if lock: data["node"]["lockfile"] = lock
+        lock = read_text(["package-lock.json", "pnpm-lock.yaml", "yarn.lock"])
+        if lock:
+            data["node"]["lockfile"] = lock
     # Docker
-    for fn in ("Dockerfile","docker-compose.yml","compose.yml","compose.yaml"):
+    for fn in ("Dockerfile", "docker-compose.yml", "compose.yml", "compose.yaml"):
         txt = read_text([fn])
-        if txt: data.setdefault("docker", {})[fn] = txt
+        if txt:
+            data.setdefault("docker", {})[fn] = txt
     return data
+
 
 def parse_make_targets():
     mk = read_text(["Makefile"])
-    if not mk: return []
+    if not mk:
+        return []
     targets = []
     for line in mk.splitlines():
         m = re.match(r"^([A-Za-z0-9._-]+):.*", line)
         if m and not m.group(1).startswith("."):
             targets.append(m.group(1))
     return sorted(set(targets))
+
 
 def ci_workflows():
     ci = {}
@@ -90,12 +109,14 @@ def ci_workflows():
                 pass
     return ci
 
+
 def git_meta():
-    def safe(cmd): 
+    def safe(cmd):
         out = sh(cmd)
         return out if out else None
+
     return {
-        "is_git_repo": (ROOT/".git").exists(),
+        "is_git_repo": (ROOT / ".git").exists(),
         "current_branch": safe("git rev-parse --abbrev-ref HEAD"),
         "latest_commit": safe("git log -1 --pretty=%H%n%an%n%ae%n%ad%n%s"),
         "tags": safe("git tag --sort=-creatordate | head -n 30"),
@@ -104,17 +125,19 @@ def git_meta():
         "recent_commits": safe("git log --date=iso --pretty=format:%h%x09%ad%x09%an%x09%s -n 50"),
     }
 
+
 def test_info():
     # Basic heuristics
     files = list_files()
     test_dirs = [f for f in files if re.search(r"(^|/)(tests?|spec)(/|$)", f)]
-    pytest_ini = read_text(["pytest.ini","pyproject.toml","tox.ini"])
-    jest_cfg = read_text(["jest.config.js","jest.config.ts","package.json"])
+    pytest_ini = read_text(["pytest.ini", "pyproject.toml", "tox.ini"])
+    jest_cfg = read_text(["jest.config.js", "jest.config.ts", "package.json"])
     return {
         "test_paths_sample": test_dirs[:50],
         "python_test_config": pytest_ini if pytest_ini else None,
         "js_test_config": jest_cfg if jest_cfg else None,
     }
+
 
 def parse_env_lines(txt: str) -> dict:
     """Return VAR names only (values redacted)."""
@@ -131,6 +154,7 @@ def parse_env_lines(txt: str) -> dict:
                 env[key] = "***REDACTED***"
     return env
 
+
 def env_and_config():
     # IMPORTANT: Never read .env (user’s private secrets). Only .env.example / templates.
     example = read_text([".env.example", ".env.template"])
@@ -139,23 +163,29 @@ def env_and_config():
         "dotenv_example": example,
         "config": {
             "settings.py": read_text(["settings.py"]),
-            "config.yaml": read_text(["config.yaml","config.yml"]),
+            "config.yaml": read_text(["config.yaml", "config.yml"]),
             "application.yml": read_text(["application.yml"]),
-        }
+        },
     }
+
 
 def docs_and_meta():
     return {
-        "README": read_text(["README.md","README.rst"]),
+        "README": read_text(["README.md", "README.rst"]),
         "CHANGELOG": read_text(["CHANGELOG.md"]),
         "ROADMAP": read_text(["ROADMAP.md"]),
         "LICENSE": read_text(["LICENSE"]),
-        "CODEOWNERS": read_text([".github/CODEOWNERS","CODEOWNERS"]),
+        "CODEOWNERS": read_text([".github/CODEOWNERS", "CODEOWNERS"]),
         "CONTRIBUTING": read_text(["CONTRIBUTING.md"]),
         "SECURITY": read_text(["SECURITY.md"]),
-        "ADR": [p.read_text(encoding="utf-8", errors="replace")
-                for p in sorted((ROOT/"docs").glob("adr/*.md"))] if (ROOT/"docs").exists() else [],
+        "ADR": [
+            p.read_text(encoding="utf-8", errors="replace")
+            for p in sorted((ROOT / "docs").glob("adr/*.md"))
+        ]
+        if (ROOT / "docs").exists()
+        else [],
     }
+
 
 def summarize_files(files):
     sample = []
@@ -163,6 +193,7 @@ def summarize_files(files):
         digest = file_digest(f)
         sample.append({"path": f, "sha256_12": digest})
     return sample
+
 
 def main():
     files = list_files()
@@ -180,7 +211,7 @@ def main():
         "docs_meta": docs_and_meta(),
     }
     # Write JSON (machine)
-    (ROOT/"repo_state.json").write_text(json.dumps(state, indent=2), encoding="utf-8")
+    (ROOT / "repo_state.json").write_text(json.dumps(state, indent=2), encoding="utf-8")
     # Write MD (human)
     md = []
     md.append(f"# Repo State\n\n_Generated: {state['generated_at']}_\n")
@@ -192,7 +223,7 @@ def main():
     for item in state["language_mix"]:
         md.append(f"- `{item['ext']}`: {item['count']}")
     md.append("\n## Key Docs Present")
-    for k,v in state["docs_meta"].items():
+    for k, v in state["docs_meta"].items():
         if isinstance(v, str) and v:
             md.append(f"- {k}: ✅")
         elif isinstance(v, list) and v:
@@ -209,10 +240,10 @@ def main():
         md.append("```\n" + "\n".join(mk) + "\n```")
     stat = state["git"].get("status") or ""
     if stat.strip():
-        md.append("\n## Git Status (porcelain)\n```\n"+stat+"\n```")
+        md.append("\n## Git Status (porcelain)\n```\n" + stat + "\n```")
     rc = state["git"].get("recent_commits") or ""
     if rc.strip():
-        md.append("\n## Recent Commits\n```\n"+rc+"\n```")
+        md.append("\n## Recent Commits\n```\n" + rc + "\n```")
     pm = state["package_manifests"]
     if pm:
         md.append("\n## Package Manifests Found")
@@ -221,8 +252,9 @@ def main():
     env = state["env_and_config"]["dotenv_example"]
     if env:
         md.append("\n## .env / examples detected: ✅")
-    (ROOT/"REPO_STATE.md").write_text("\n".join(md) + "\n", encoding="utf-8")
+    (ROOT / "REPO_STATE.md").write_text("\n".join(md) + "\n", encoding="utf-8")
     print("Wrote repo_state.json and REPO_STATE.md")
+
 
 if __name__ == "__main__":
     main()
