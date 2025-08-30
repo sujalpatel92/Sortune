@@ -1,0 +1,81 @@
+[
+    {
+        "browseId": "MPREb_XalBGn4nG3D",
+        "playlistId": "OLAK5uy_m8lYKMRoKlWpXtmJYz-JF3Hasf3af0yVw",
+        "title": "Seoul",
+        "thumbnails": [
+            {
+                "url": "https://lh3.googleusercontent.com/7amnRNBVEnicPdwbqMJF03pyxilRoBU1OsI6DabMuvHgK_iYYbUh4-Jwiljj93czIMZFUvid7eKt5W3B=w226-h226-l90-rj",
+                "width": 226,
+                "height": 226
+            },
+            {
+                "url": "https://lh3.googleusercontent.com/7amnRNBVEnicPdwbqMJF03pyxilRoBU1OsI6DabMuvHgK_iYYbUh4-Jwiljj93czIMZFUvid7eKt5W3B=w544-h544-l90-rj",
+                "width": 544,
+                "height": 544
+            }
+        ],
+        "type": "EP",
+        "artists": [
+            {
+                "name": "BOL4",
+                "id": "UCa5qWh5TRLCVFkCO67_gOtw"
+            }
+        ],
+        "year": "2022"
+    },
+    {
+        "browseId": "MPREb_8EpjB1V9HuF",
+        "playlistId": "OLAK5uy_lEn5I9uVKgEJa6sfEsqgt-O4WU_s2oxiU",
+        "title": "Attack on Titan The Final Season Original Soundtrack",
+        "thumbnails": [
+            {
+                "url": "https://lh3.googleusercontent.com/2UHrc4xp1G5nosU_i0_WI6XYHU9PYRh5G_g8KfuoCF9uteQpQc4eSS_rBESHwtDm2qc2jgCTVu1d5tNOoA=w226-h226-l90-rj",
+                "width": 226,
+                "height": 226
+            },
+            {
+                "url": "https://lh3.googleusercontent.com/2UHrc4xp1G5nosU_i0_WI6XYHU9PYRh5G_g8KfuoCF9uteQpQc4eSS_rBESHwtDm2qc2jgCTVu1d5tNOoA=w544-h544-l90-rj",
+                "width": 544,
+                "height": 544
+            }
+        ],
+        "type": "Album",
+        "artists": [
+            {
+                "name": "Kohta Yamamoto",
+                "id": "UChsIakKCl4x73kV9lcS6H7g"
+            },
+            {
+                "name": "Hiroyuki Sawano",
+                "id": "UCy3Lx1fNl4XnxleZBJK_PXw"
+            }
+        ],
+        "year": "2021"
+    },
+    {
+        "browseId": "MPREb_RYPa9DilsHB",
+        "playlistId": "OLAK5uy_kqc1Gn-k6NruhTg6bHAz0EjZb16fmn33k",
+        "title": "Songs of Trance",
+        "thumbnails": [
+            {
+                "url": "https://lh3.googleusercontent.com/qKblPzeqpEhN90bIUsa5oznwju6dUiQ7-22VAcal7bAUbCvZqQni2zqimfp7JY_plV8HSboULRoBa9wPZg=w226-h226-l90-rj",
+                "width": 226,
+                "height": 226
+            },
+            {
+                "url": "https://lh3.googleusercontent.com/qKblPzeqpEhN90bIUsa5oznwju6dUiQ7-22VAcal7bAUbCvZqQni2zqimfp7JY_plV8HSboULRoBa9wPZg=w544-h544-l90-rj",
+                "width": 544,
+                "height": 544
+            }
+        ],
+        "type": "EP",
+        "artists": [
+            {
+                "name": "Amit Trivedi",
+                "id": "UC19pnd-F7tw6vDhkmEiAkgA"
+            }
+        ],
+        "year": "2020"
+    }
+]

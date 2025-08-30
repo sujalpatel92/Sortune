@@ -1,0 +1,84 @@
+[
+    {
+        "title": "Hindi to download",
+        "playlistId": "PLXLnGytrEMpDI3fZcz1QL-8PnLkzRb6Iy",
+        "thumbnails": [
+            {
+                "url": "https://yt3.ggpht.com/ujwdONGwBTD2IKV1wDx6hLVUdSzXmGNFXaUUr9dkDX81CBjGhHeilicOPAjaJ5rllUjbzdVVGOc=s192",
+                "width": 192,
+                "height": 192
+            },
+            {
+                "url": "https://yt3.ggpht.com/ujwdONGwBTD2IKV1wDx6hLVUdSzXmGNFXaUUr9dkDX81CBjGhHeilicOPAjaJ5rllUjbzdVVGOc=s576",
+                "width": 576,
+                "height": 576
+            }
+        ],
+        "description": "Sujal Patel • 271 tracks",
+        "count": "271",
+        "author": [
+            {
+                "name": "Sujal Patel",
+                "id": "UCkCIpbJT78fiW2GG4VH2-jw"
+            }
+        ]
+    },
+    {
+        "title": "March-May Recap '24",
+        "playlistId": "LRSRqx7GXN8-CKlNx8pN4syxaLN2q5QQ-cfq9",
+        "thumbnails": [
+            {
+                "url": "https: //www.gstatic.com/music/listening_review/SPRING_2_226x226.png",
+                "width": 226,
+                "height": 226
+            },
+            {
+                "url": "https://www.gstatic.com/music/listening_review/SPRING_2_544x544.png",
+                "width": 544,
+                "height": 544
+            }
+        ],
+        "description": "Made for Sujal Patel • 50 songs"
+    },
+    {
+        "title": "December-February Recap '24",
+        "playlistId": "LRSRj_XOwqIMCbwumGsgIgXciEjRKpORjFV2I",
+        "thumbnails": [
+            {
+                "url": "https: //www.gstatic.com/music/listening_review/WINTER_2_226x226.png",
+                "width": 226,
+                "height": 226
+            },
+            {
+                "url": "https://www.gstatic.com/music/listening_review/WINTER_2_544x544.png",
+                "width": 544,
+                "height": 544
+            }
+        ],
+        "description": "Made for Sujal Patel • 50 songs"
+    },
+    {
+        "title": "Retro Grooves: Bollywood",
+        "playlistId": "RDCLAK5uy_kjcqi4IupK6Pl1cz_sHCfMGnXaRPyscoc",
+        "thumbnails": [
+            {
+                "url": "https://lh3.googleusercontent.com/iKJnQIgafmm8gmitA8ngXEHGDyftjx2FPKjrqXRKYKhLTaZNHuUF9q4quxnNQ9b25FcDNpNRSmUoDyU=w226-h226-l90-rj",
+                "width": 226,
+                "height": 226
+            },
+            {
+                "url": "https://lh3.googleusercontent.com/iKJnQIgafmm8gmitA8ngXEHGDyftjx2FPKjrqXRKYKhLTaZNHuUF9q4quxnNQ9b25FcDNpNRSmUoDyU=w544-h544-l90-rj",
+                "width": 544,
+                "height": 544
+            }
+        ],
+        "description": "YouTube Music • 50 songs",
+        "count": "50",
+        "author": [
+            {
+                "name": "YouTube Music",
+                "id": "None"
+            }
+        ]
+    }
+]

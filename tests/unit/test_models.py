@@ -1,11 +1,19 @@
-from sortune_core.models.playlist import Artist, Playlist, Track
+from sortune_core.models.playlist import Playlist
 
 
 def test_playlist_model_validation():
-    pl = Playlist(
-        id="demo",
-        name="Demo Playlist",
-        tracks=[Track(id="1", title="Test", artists=[Artist(name="Tester")])],
+    pl = Playlist.model_validate(
+        {
+            "playlistId": "demo",
+            "title": "Demo Playlist",
+            "tracks": [
+                {
+                    "videoId": "1",
+                    "title": "Test",
+                    "artists": [{"name": "Tester"}],
+                }
+            ],
+        }
     )
     assert pl.id == "demo"
     assert pl.tracks[0].title == "Test"

@@ -1,0 +1,78 @@
+[
+    {
+        "browseId": "MPLAUCqZpCVEbu4gxeKj7mWKA2Vg",
+        "artist": "Celene Cruz",
+        "shuffleId": "RDAOXoTEKhjkHdkRfee5H8ONEg",
+        "radioId": "RDEMXoTEKhjkHdkRfee5H8ONEg",
+        "subscribers": "1",
+        "thumbnails": [
+            {
+                "url": "https://www.gstatic.com/youtube/media/ytm/images/artist_avatar@1200.png?sqp=CMjZ1tgF-oaymwEGCDwQPFgB&rs=ALLJMcL7TCigANJCPRDX39EDsxqZ57jUrw",
+                "width": 60,
+                "height": 60
+            },
+            {
+                "url": "https://www.gstatic.com/youtube/media/ytm/images/artist_avatar@1200.png?sqp=CPLw1tgF-oaymwEGCHgQeFgB&rs=ALLJMcLkubZGQLMxFqq4NT1oPdrY8SoH9A",
+                "width": 120,
+                "height": 120
+            }
+        ]
+    },
+    {
+        "browseId": "MPLAUC9-2io8F6puEBsQZ8uCQ1qw",
+        "artist": "Cheat Codes",
+        "shuffleId": "RDAOdEkNnLM9xE8zpn-iy7TNDg",
+        "radioId": "RDEMdEkNnLM9xE8zpn-iy7TNDg",
+        "subscribers": "1",
+        "thumbnails": [
+            {
+                "url": "https://lh3.googleusercontent.com/HJ71T7vybCIFB5eSmd8yxbZCwwYEvbnhNXguyBi8lY9w6iCr6fdYTlO7KxwCosiS7SnXFLjCDgOuQQ=w60-h60-p-l90-rj",
+                "width": 60,
+                "height": 60
+            },
+            {
+                "url": "https://lh3.googleusercontent.com/HJ71T7vybCIFB5eSmd8yxbZCwwYEvbnhNXguyBi8lY9w6iCr6fdYTlO7KxwCosiS7SnXFLjCDgOuQQ=w120-h120-p-l90-rj",
+                "width": 120,
+                "height": 120
+            }
+        ]
+    },
+    {
+        "browseId": "MPLAUCIaFw5VBEK8qaW6nRpx_qnw",
+        "artist": "Coldplay",
+        "shuffleId": "RDAOuf6htoZivPnz-ZIwGU0dDA",
+        "radioId": "RDEMuf6htoZivPnz-ZIwGU0dDA",
+        "subscribers": "1",
+        "thumbnails": [
+            {
+                "url": "https://lh3.googleusercontent.com/IOKuXtp8PCQ_Fc-vaRKm3sKIXBxFV51gZheLTH5br-YGnWHFQf_Jywcuk7wbprYRoEbQyS_XZY6-nMJX=w60-h60-p-l90-rj",
+                "width": 60,
+                "height": 60
+            },
+            {
+                "url": "https://lh3.googleusercontent.com/IOKuXtp8PCQ_Fc-vaRKm3sKIXBxFV51gZheLTH5br-YGnWHFQf_Jywcuk7wbprYRoEbQyS_XZY6-nMJX=w120-h120-p-l90-rj",
+                "width": 120,
+                "height": 120
+            }
+        ]
+    },
+    {
+        "browseId": "MPLAUC1EnMnHlXsA8X5kKe9B2rcg",
+        "artist": "Cole Rolland",
+        "shuffleId": "RDAOEunEObVd1xheQnZPI2UheA",
+        "radioId": "RDEMEunEObVd1xheQnZPI2UheA",
+        "subscribers": "1",
+        "thumbnails": [
+            {
+                "url": "https://lh3.googleusercontent.com/WUTAcDysL9zQErvSscyNbzWFH7nvMsupmp7d7xpq8GWeJjame3SRuKslrm7sfneE5-070OAk7VSYxA=w60-h60-p-l90-rj",
+                "width": 60,
+                "height": 60
+            },
+            {
+                "url": "https://lh3.googleusercontent.com/WUTAcDysL9zQErvSscyNbzWFH7nvMsupmp7d7xpq8GWeJjame3SRuKslrm7sfneE5-070OAk7VSYxA=w120-h120-p-l90-rj",
+                "width": 120,
+                "height": 120
+            }
+        ]
+    }
+]

@@ -58,4 +58,9 @@ services:
     container_name: sortune-redis
     ports:
       - "6379:6379"
-    command: ["redis-server", "--appendonly", "no"]
+    volumes:
+      - redis-data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+
+volumes:
+  redis-data:
