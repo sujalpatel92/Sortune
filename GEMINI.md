@@ -94,5 +94,5 @@ scripts/dev.sh seed
     ```bash
     scripts/dev.sh all
     ```
-*   **YouTube Music Integration:** The `YTMusicClient` in `packages/adapters/sortune_adapters/ytmusic/client.py` handles interaction with the YouTube Music API. It requires OAuth credentials, which are configured via environment variables (`.env` file).
+*   **YouTube Music Integration:** The `YTMusicClient` in `packages/adapters/sortune_adapters/ytmusic/client.py` handles interaction with the YouTube Music API. It requires OAuth credentials, which are configured via environment variables (`.env` file). The client is fully implemented and can fetch playlists and tracks.
 *   **AI Integration:** The project uses AI for generating playlist names. The prompt for this is located in `packages/ai/sortune_ai/prompts/name_gen.md`.

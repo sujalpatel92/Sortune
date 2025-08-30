@@ -8,8 +8,8 @@ def test_get_playlist_ok(client):
     res = client.get("/playlists/demo")
     assert res.status_code == 200
     data = res.json()
-    assert data["id"] == "demo"
-    assert data["name"] in ("Demo", "Playlist demo")  # depending on repo impl
+    assert data["playlistId"] == "demo"
+    assert data["title"] in ("Demo", "Playlist demo")  # depending on repo impl
     assert len(data["tracks"]) == 2
 
 

@@ -19,11 +19,11 @@ def test_get_yt_playlist_tracks_live_ok(client: TestClient, fake_yt) -> None:
     assert resp.status_code == 200
     tracks = resp.json()
     assert isinstance(tracks, list)
-    assert tracks[0]["id"] == "vid1"
+    assert tracks[0]["videoId"] == "vid1"
     assert tracks[0]["title"] == "Song A"
     assert tracks[0]["artists"][0]["name"] == "Alice"
-    assert tracks[0]["album"] == "Alpha"
-    assert tracks[0]["in_library"] is True
+    assert tracks[0]["album"]["name"] == "Alpha"
+    assert tracks[0]["inLibrary"] is True
 
 
 def test_import_yt_playlist_into_redis_persists(
@@ -32,8 +32,8 @@ def test_import_yt_playlist_into_redis_persists(
     resp = client.post("/playlists/yt/import/PL123")
     assert resp.status_code == 201
     pl = resp.json()
-    assert pl["id"] == "PL123"
-    assert pl["name"] == "YT:PL123"  # default fallback name
+    assert pl["playlistId"] == "PL123"
+    assert pl["title"] == "YT:PL123"  # default fallback name
     assert len(pl["tracks"]) == 2
 
     # Verify persisted in the in-memory repo fixture
@@ -48,4 +48,4 @@ def test_import_with_env_name_override(client: TestClient, fake_yt, repo, monkey
     resp = client.post("/playlists/yt/import/PL123")
     assert resp.status_code == 201
     pl = resp.json()
-    assert pl["name"] == "My Fav Tracks"
+    assert pl["title"] == "My Fav Tracks"

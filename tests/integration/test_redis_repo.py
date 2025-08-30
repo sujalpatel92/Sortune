@@ -6,7 +6,7 @@ except Exception:  # pragma: no cover
     fakeredis = None
 
 from sortune_adapters.storage.redis_repo import RedisPlaylistRepo
-from sortune_core.models.playlist import Artist, Playlist, Track
+from sortune_core.models.playlist import Playlist
 
 
 @pytest.mark.skipif(fakeredis is None, reason="fakeredis not installed")
@@ -14,13 +14,23 @@ def test_redis_repo_roundtrip():
     r = fakeredis.FakeRedis()
     repo = RedisPlaylistRepo(r)
 
-    pl = Playlist(
-        id="demo",
-        name="Demo Playlist",
-        tracks=[
-            Track(id="1", title="A Song", artists=[Artist(name="One")]),
-            Track(id="2", title="B Song", artists=[Artist(name="Two")]),
-        ],
+    pl = Playlist.model_validate(
+        {
+            "playlistId": "demo",
+            "title": "Demo Playlist",
+            "tracks": [
+                {
+                    "videoId": "1",
+                    "title": "A Song",
+                    "artists": [{"name": "One"}],
+                },
+                {
+                    "videoId": "2",
+                    "title": "B Song",
+                    "artists": [{"name": "Two"}],
+                },
+            ],
+        }
     )
 
     # save -> get

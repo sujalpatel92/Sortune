@@ -103,7 +103,13 @@ def import_yt_playlist_into_redis(
         tracks = client.get_playlist_tracks(playlist_id=playlist_id, limit=limit)
 
         display_name = os.getenv("YT_PLAYLIST_NAME") or f"YT:{playlist_id}"
-        playlist = Playlist(id=playlist_id, name=display_name, tracks=tracks)
+        playlist = Playlist.model_validate(
+            {
+                "playlistId": playlist_id,
+                "title": display_name,
+                "tracks": tracks,
+            }
+        )
 
         repo.save(playlist)
         return playlist
@@ -125,7 +131,13 @@ def refresh_yt_playlist(
         client = YTMusicClient()
         tracks = client.get_playlist_tracks(playlist_id=playlist_id, limit=limit)
         display_name = os.getenv("YT_PLAYLIST_NAME") or f"YT:{playlist_id}"
-        pl = Playlist(id=playlist_id, name=display_name, tracks=tracks)
+        pl = Playlist.model_validate(
+            {
+                "playlistId": playlist_id,
+                "title": display_name,
+                "tracks": tracks,
+            }
+        )
         repo.save(pl)
         return pl
     except Exception as e:

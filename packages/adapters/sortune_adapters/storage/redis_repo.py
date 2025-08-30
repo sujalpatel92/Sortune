@@ -20,12 +20,18 @@ class RedisPlaylistRepo:
         raw = self.r.get(self._key(playlist_id))
         if not raw:
             # Return an empty playlist if nothing exists
-            return Playlist(id=playlist_id, name=f"Playlist {playlist_id}", tracks=[])
+            return Playlist.model_validate(
+                {
+                    "playlistId": playlist_id,
+                    "title": f"Playlist {playlist_id}",
+                    "tracks": [],
+                }
+            )
         data = json.loads(raw)
         return Playlist.model_validate(data)
 
     def save(self, playlist: Playlist) -> None:
-        self.r.set(self._key(playlist.id), playlist.model_dump_json())
+        self.r.set(self._key(playlist.id), playlist.model_dump_json(by_alias=True))
 
     def load_rule(self, name: str):
         # Simple inline registry for now

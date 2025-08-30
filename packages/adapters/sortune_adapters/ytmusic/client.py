@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any, TypedDict
 
 from dotenv import load_dotenv
-from sortune_core.models.playlist import Artist, Track
+from sortune_core.models.playlist import Track
 
 load_dotenv()
 
@@ -32,7 +32,8 @@ log = logging.getLogger(__name__)
 class PlaylistSummary(TypedDict, total=False):
     playlistId: str
     title: str
-    count: int | None
+    author: list[dict] | None
+    count: str | None
     thumbnails: list | None
 
 
@@ -79,6 +80,7 @@ class YTMusicClient:
                 PlaylistSummary(
                     playlistId=p.get("playlistId"),
                     title=p.get("title"),
+                    author=p.get("author"),
                     count=p.get("count"),
                     thumbnails=p.get("thumbnails"),
                 )
@@ -92,7 +94,13 @@ class YTMusicClient:
         yt = self._yt_client()
         raw = yt.get_playlist(playlistId=playlist_id, limit=limit)
         tracks = raw.get("tracks", []) or []
-        return [self._to_track(t) for t in tracks]
+        out: list[Track] = []
+        for t in tracks:
+            try:
+                out.append(self._to_track(t))
+            except Exception:
+                log.warning("Skipping track with missing videoId: %s", t.get("title"))
+        return out
 
     # Backward-compat demo data used elsewhere in the repo
     def sample_tracks(self) -> list[Track]:
@@ -100,16 +108,18 @@ class YTMusicClient:
         Return a tiny, hardcoded list for seed/demo environments.
         """
         return [
-            Track(
-                id="Y6FWFKXu1FY",
-                title="Aap Ki Kashish",
-                artists=[
-                    Artist(name="Himesh Reshammiya"),
-                    Artist(name="Krishna"),
-                    Artist(name="Ahir"),
-                ],
-                album="Aashiq Banaya Aapne",
-                in_library=False,
+            Track.model_validate(
+                {
+                    "videoId": "Y6FWFKXu1FY",
+                    "title": "Aap Ki Kashish",
+                    "artists": [
+                        {"name": "Himesh Reshammiya"},
+                        {"name": "Krishna"},
+                        {"name": "Ahir"},
+                    ],
+                    "album": {"name": "Aashiq Banaya Aapne"},
+                    "inLibrary": False,
+                }
             )
         ]
 
@@ -182,27 +192,10 @@ class YTMusicClient:
         Convert a ytmusicapi track dict into our core Track model.
         ytmusicapi 'track' fields are not guaranteed stable; handle missing keys defensively.
         """
-        video_id = t.get("videoId") or t.get("id") or ""
-        title = t.get("title") or ""
-        # Artists shape varies: [{"name": "...", "id": "..."}] or nested
-        artists_raw = t.get("artists") or []
-        artists = []
-        for a in artists_raw:
-            name = a.get("name") if isinstance(a, dict) else str(a)
-            if name:
-                artists.append(Artist(name=name))
-        album = None
-        album_obj = t.get("album")
-        if isinstance(album_obj, dict):
-            album = album_obj.get("name") or None
-        elif isinstance(album_obj, str):
-            album = album_obj
-        in_library = bool(t.get("inLibrary") or t.get("in_library") or False)
-
-        return Track(
-            id=video_id,
-            title=title,
-            artists=artists,
-            album=album,
-            in_library=in_library,
-        )
+        # The Track model expects 'videoId' as an alias for 'id'.
+        # The raw data may have 'id' as a fallback.
+        if "videoId" not in t and "id" in t:
+            t["videoId"] = t["id"]
+        if t.get("inLibrary") is None:
+            t["inLibrary"] = False
+        return Track.model_validate(t)

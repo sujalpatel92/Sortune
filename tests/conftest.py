@@ -3,7 +3,7 @@ import importlib
 import pytest
 from fastapi.testclient import TestClient
 from sortune_api.main import app
-from sortune_core.models.playlist import Artist, Playlist, Track
+from sortune_core.models.playlist import Playlist, Track
 
 # Import the routes module once so we can override its dependency + YT client
 playlists_module = importlib.import_module("sortune_api.routes.playlists")
@@ -20,7 +20,13 @@ class InMemoryPlaylistRepo:
         # Return an existing playlist or a placeholder so callers can mutate & save
         return self.store.get(
             playlist_id,
-            Playlist(id=playlist_id, name=f"Playlist {playlist_id}", tracks=[]),
+            Playlist.model_validate(
+                {
+                    "playlistId": playlist_id,
+                    "title": f"Playlist {playlist_id}",
+                    "tracks": [],
+                }
+            ),
         )
 
     def save(self, playlist: Playlist) -> None:
@@ -47,13 +53,23 @@ def client(repo: InMemoryPlaylistRepo):
     to our in-memory repo. Seeds a small 'demo' playlist.
     """
     # Seed a sample playlist
-    demo = Playlist(
-        id="demo",
-        name="Demo",
-        tracks=[
-            Track(id="2", title="b Song", artists=[Artist(name="Artist")]),
-            Track(id="1", title="A Song", artists=[Artist(name="Artist")]),
-        ],
+    demo = Playlist.model_validate(
+        {
+            "playlistId": "demo",
+            "title": "Demo",
+            "tracks": [
+                {
+                    "videoId": "2",
+                    "title": "b Song",
+                    "artists": [{"name": "Artist"}],
+                },
+                {
+                    "videoId": "1",
+                    "title": "A Song",
+                    "artists": [{"name": "Artist"}],
+                },
+            ],
+        }
     )
     repo.save(demo)
 
@@ -85,22 +101,23 @@ def fake_yt(monkeypatch):
             return items[:limit]
 
         def get_playlist_tracks(self, playlist_id: str, limit: int | None = None) -> list[Track]:
-            tracks = [
-                Track(
-                    id="vid1",
-                    title="Song A",
-                    artists=[Artist(name="Alice")],
-                    album="Alpha",
-                    in_library=True,
-                ),
-                Track(
-                    id="vid2",
-                    title="Song B",
-                    artists=[Artist(name="Bob")],
-                    album="Beta",
-                    in_library=False,
-                ),
+            tracks_data = [
+                {
+                    "videoId": "vid1",
+                    "title": "Song A",
+                    "artists": [{"name": "Alice"}],
+                    "album": {"name": "Alpha"},
+                    "inLibrary": True,
+                },
+                {
+                    "videoId": "vid2",
+                    "title": "Song B",
+                    "artists": [{"name": "Bob"}],
+                    "album": {"name": "Beta"},
+                    "inLibrary": False,
+                },
             ]
+            tracks = [Track.model_validate(t) for t in tracks_data]
             return tracks[:limit] if limit else tracks
 
     # IMPORTANT: patch the symbol as imported by the routes module
