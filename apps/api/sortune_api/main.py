@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+from .routes import ai as ai_routes
 from .routes import playlists
 
 app = FastAPI(
@@ -10,6 +11,7 @@ app = FastAPI(
 
 # Routers
 app.include_router(playlists.router)
+app.include_router(ai_routes.router)
 
 
 @app.get("/health", tags=["system"])

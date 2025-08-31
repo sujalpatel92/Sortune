@@ -59,7 +59,7 @@ REDIS_URL=redis://localhost:6379/0 scripts/dev.sh seed
 scripts/dev.sh api
 scripts/dev.sh ui
 # Open: API docs → http://localhost:8000/docs
-#       UI → http://localhost:8501  (use playlist id "demo")
+#       UI → http://localhost:8501  (use playlist id "demo"); try AI suggestions expander
 ```
 
 **Docker dev stack**
@@ -102,6 +102,7 @@ export SETUPTOOLS_SCM_PRETEND_VERSION := $(VERSION)
 
 * API: `apps/api/sortune_api/main.py`
 * UI: `apps/ui/streamlit_app/app.py`
+* AI: `packages/ai/sortune_ai/` (BaseLLM, providers, prompts, schemas)
 * Worker jobs: `apps/worker/sortune_worker/jobs/` (see `demo.py`)
 
 ## 7) Important do’s and don’ts
@@ -112,6 +113,21 @@ export SETUPTOOLS_SCM_PRETEND_VERSION := $(VERSION)
 * **Do** use **Conventional Commits** (e.g., `feat:`, `fix:`, `chore:`) to keep release notes clean.
 * **Don’t** assume the **YouTube Music adapter** is live: it’s a **stub** today; real `ytmusicapi` integration is a TODO.
 * **Don’t** read or commit real secrets: use `.env.example`. `.env` is git-ignored by policy.
+
+### AI / LLM config (when testing AI features)
+Set the following env vars, or add them to `.env`:
+
+```bash
+OPENAI_API_KEY=sk-...
+SORTUNE_LLM_PROVIDER=langchain
+SORTUNE_LLM_BACKEND=openai
+SORTUNE_LLM_MODEL=gpt-4o-mini
+SORTUNE_LLM_TEMPERATURE=0.6
+# Optional deterministic seed
+# SORTUNE_LLM_SEED=42
+```
+
+API endpoint for suggestions: `POST /ai/suggest-playlist-names`
 
 ## 8) Current limitations & near-term tasks
 

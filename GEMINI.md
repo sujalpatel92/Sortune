@@ -95,4 +95,11 @@ scripts/dev.sh seed
     scripts/dev.sh all
     ```
 *   **YouTube Music Integration:** The `YTMusicClient` in `packages/adapters/sortune_adapters/ytmusic/client.py` handles interaction with the YouTube Music API. It requires OAuth credentials, which are configured via environment variables (`.env` file). The client is fully implemented and can fetch playlists and tracks.
-*   **AI Integration:** The project uses AI for generating playlist names. The prompt for this is located in `packages/ai/sortune_ai/prompts/name_gen.md`.
+*   **AI Integration:**
+    - Provider abstraction and config under `packages/ai/sortune_ai/` (BaseLLM, factory, providers)
+    - Prompt templates and Pydantic schemas for playlist naming
+    - JSON Schema-constrained generation for reliable outputs
+    - Python helper: `from sortune_ai import generate_playlist_name_suggestions`
+    - API endpoint: `POST /ai/suggest-playlist-names` returns `PlaylistSuggestions`
+    - UI expander: “AI — Generate playlist name suggestions”
+    - Env config: `OPENAI_API_KEY`, `SORTUNE_LLM_PROVIDER=langchain`, `SORTUNE_LLM_BACKEND=openai`, `SORTUNE_LLM_MODEL=gpt-4o-mini`, `SORTUNE_LLM_TEMPERATURE=0.6`, optional `SORTUNE_LLM_SEED`
