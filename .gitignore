@@ -32,6 +32,8 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+_version.py
+**/_version.py
 
 # Virtual environments
 venv/
@@ -146,3 +148,4 @@ docker-volume/
 .streamlit/
 repo_state.json
 REPO_STATE.md
+
