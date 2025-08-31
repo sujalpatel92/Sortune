@@ -3,12 +3,14 @@
 ## Project Structure & Module Organization
 - Apps: `apps/api` (FastAPI), `apps/worker` (RQ worker), `apps/ui` (Streamlit).
 - Packages: `packages/core`, `packages/adapters`, `packages/ai` (installable Python packages used by apps).
+- Python packages/apps use `src/` layout (e.g., `apps/api/src/sortune_api`, `packages/core/src/sortune_core`).
 - Tests: `tests/unit`, `tests/integration`, `tests/e2e`.
 - Infra: `infra/compose.yaml`, Dockerfiles in `infra/docker/`.
 - Scripts/Tools: `scripts/`, `tools/`. Config in `pyproject.toml`.
 
 ## Build, Test, and Development Commands
 - `make install`: Install dev tooling and local packages via `uv` (editable).
+- `uv.lock` is committed. After dependency changes, run `uv lock` at the repo root and commit the updated lockfile.
 - `make fmt`: Format and auto-fix with Ruff (includes import sorting).
 - `make lint`: Lint only (no fixes).
 - `make typecheck`: Run mypy on `packages/`.
