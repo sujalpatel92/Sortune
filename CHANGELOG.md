@@ -1,6 +1,22 @@
 # Changelog
 
-## [Unreleased]
+## [0.0.5] - 2025-08-31
+
+
+
+### Added
+
+- enhance CI workflow and testing (d3e7f81…)
+
+
+
+### Chore
+
+- update for v0.0.4 (e8ffe85…)
+
+- add version files to gitignore (dc2294d…)
+
+- remove version files from version control (a300aa8…)
 
 
 
