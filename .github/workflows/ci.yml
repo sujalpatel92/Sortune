@@ -8,51 +8,93 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  lint:
+    name: Lint (ruff + black)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Set up uv + Python
+        uses: astral-sh/setup-uv@v4
+        with:
+          python-version: '3.12'
+          enable-cache: true
+          cache-dependency-path: |
+            pyproject.toml
+            uv.lock
+
+      - name: Get latest tag and set version
+        id: meta
+        run: |
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "tag_name=$TAG" >> $GITHUB_OUTPUT
+          echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+
+      - name: Set version env var for setuptools-scm
+        run: echo "SETUPTOOLS_SCM_PRETEND_VERSION=${{ steps.meta.outputs.version }}" >> $GITHUB_ENV
+
+      - name: Ruff Lint
+        run: uvx ruff check .
+
+      - name: Black Check
+        run: uvx black --check --line-length 100 .
+
+  tests:
+    name: Tests (pytest + coverage)
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["3.12"]
-
+        python-version: ["3.12", "3.13"]
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        fetch-tags: true
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
-    - name: Install uv
-      run: |
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      - name: Set up uv + Python ${{ matrix.python-version }}
+        uses: astral-sh/setup-uv@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          cache-dependency-path: |
+            pyproject.toml
+            uv.lock
 
-    - name: Create virtual environment
-      run: uv venv
+      - name: Create virtual environment
+        run: uv venv
 
-    - name: Get latest tag and set version
-      id: meta
-      run: |
-        TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-        echo "tag_name=$TAG" >> $GITHUB_OUTPUT
-        echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+      - name: Get latest tag and set version
+        id: meta
+        run: |
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "tag_name=$TAG" >> $GITHUB_OUTPUT
+          echo "version=${TAG#v}" >> $GITHUB_OUTPUT
 
-    - name: Set version env var for setuptools-scm
-      run: echo "SETUPTOOLS_SCM_PRETEND_VERSION=${{ steps.meta.outputs.version }}" >> $GITHUB_ENV
+      - name: Set version env var for setuptools-scm
+        run: echo "SETUPTOOLS_SCM_PRETEND_VERSION=${{ steps.meta.outputs.version }}" >> $GITHUB_ENV
 
-    - name: Install Dependencies
-      run: |
-        uv pip compile pyproject.toml --extra dev | uv pip install -r -
-        uv pip install -e packages/core -e packages/adapters -e packages/ai -e apps/api -e apps/worker
-        uv pip install streamlit
+      - name: Install dependencies
+        run: |
+          uv pip compile pyproject.toml --extra dev | uv pip install -r -
+          uv pip install -e packages/core -e packages/adapters -e packages/ai -e apps/api -e apps/worker
+          uv pip install streamlit
+          # coverage support
+          uv pip install pytest-cov
 
-    - name: Lint
-      run: make lint
+      - name: Typecheck
+        run: make typecheck
 
-    - name: Typecheck
-      run: make typecheck
+      - name: Run tests with coverage
+        run: |
+          uv run pytest --cov=packages --cov=apps --cov-report=xml --cov-report=term-missing
 
-    - name: Test
-      run: make test
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python-version }}
+          path: coverage.xml
+          if-no-files-found: error

@@ -1,6 +1,7 @@
 # Use: `make <target>`
 SHELL := /bin/bash
 UV ?= uv
+UVX := $(UV)x
 PY ?= python
 COMPOSE := infra/compose.yaml
 BRANCH ?= main
@@ -12,7 +13,7 @@ VERSION := $(patsubst v%,%,$(TAG))
 # Make this available to all recipe commands (like the GH Action env step)
 export SETUPTOOLS_SCM_PRETEND_VERSION := $(VERSION)
 
-.PHONY: install fmt lint typecheck test api worker ui dev-up dev-down clean release changelog guard-main guard-clean guard-synced help
+.PHONY: install fmt lint typecheck test ci-local api worker ui dev-up dev-down clean release changelog guard-main guard-clean guard-synced help
 
 # Show available targets
 help:
@@ -24,6 +25,7 @@ help:
 	@echo "  lint         - Lint only (no fixes)"
 	@echo "  typecheck    - Run mypy on packages/"
 	@echo "  test         - Run pytest"
+	@echo "  ci-local     - Run CI-like suite (lint, typecheck, coverage)"
 	@echo "  api          - Start FastAPI with uvicorn (reload)"
 	@echo "  worker       - Start RQ worker (requires local Redis)"
 	@echo "  ui           - Start Streamlit demo UI"
@@ -49,18 +51,31 @@ install:
 
 # Format and auto-fix
 fmt:
-	$(UV) run --no-project ruff format .
-	$(UV) run --no-project ruff check . --fix
+	$(UVX) black --line-length 100 .
+	$(UVX) ruff check . --fix
 
 # Lint only (no fixes)
 lint:
-	$(UV) run --no-project ruff check .
+	$(UVX) ruff check .
 
 typecheck:
 	$(UV) run --no-project mypy packages/
 
 test:
 	$(UV) run --no-project pytest -q
+
+# Run the CI-equivalent checks locally (ruff + black, mypy, pytest with coverage)
+ci-local:
+	@echo "==> Lint: ruff"
+	$(UVX) ruff check .
+	@echo "==> Lint: black --check"
+	$(UVX) black --check --line-length 100 .
+	@echo "==> Typecheck: mypy"
+	$(UV) run --no-project mypy packages/
+	@echo "==> Tests: pytest with coverage"
+	$(UV) pip install pytest-cov >/dev/null
+	$(UV) run --no-project pytest --cov=packages --cov=apps --cov-report=xml --cov-report=term-missing
+	@echo "==> Coverage report written to coverage.xml"
 
 # Run FastAPI API (hot reload)
 api:
