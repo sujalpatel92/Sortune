@@ -178,12 +178,14 @@ def docs_and_meta():
         "CODEOWNERS": read_text([".github/CODEOWNERS", "CODEOWNERS"]),
         "CONTRIBUTING": read_text(["CONTRIBUTING.md"]),
         "SECURITY": read_text(["SECURITY.md"]),
-        "ADR": [
-            p.read_text(encoding="utf-8", errors="replace")
-            for p in sorted((ROOT / "docs").glob("adr/*.md"))
-        ]
-        if (ROOT / "docs").exists()
-        else [],
+        "ADR": (
+            [
+                p.read_text(encoding="utf-8", errors="replace")
+                for p in sorted((ROOT / "docs").glob("adr/*.md"))
+            ]
+            if (ROOT / "docs").exists()
+            else []
+        ),
     }
 
 
