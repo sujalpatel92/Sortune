@@ -58,7 +58,7 @@ jobs:
             # Prepend only the new release section (no header/footer), keeping existing content intact.
             git-cliff --config cliff.toml \
               --tag "$TAG" \
-              --strip "header,footer" \
+              --strip "all" \
               --prepend CHANGELOG.md
           fi
       
