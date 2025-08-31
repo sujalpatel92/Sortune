@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag to add to CHANGELOG (e.g., v0.1.0)"
+        description: "Tag to include in the CHANGELOG update (e.g., v0.1.0)"
         required: true
 
 permissions:
@@ -19,64 +19,59 @@ jobs:
   changelog_pr:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          ref: main
+          # Fetch all history for all branches and tags.
+          # This is necessary for git-cliff to discover all commits and tags.
           fetch-depth: 0
-          fetch-tags: true
 
       - name: Verify tag exists and is on main
         run: |
           set -euo pipefail
           TAG="${{ github.event.inputs.tag }}"
-          # Ensure the tag exists
+          # Fetch all tags from the remote repository
           git fetch --tags --force
+          # Check if the tag exists
           if ! git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
-            echo "❌ Tag $TAG not found"; exit 1
+            echo "❌ Tag '$TAG' not found"
+            exit 1
           fi
-          # Ensure the tag commit is reachable from main
+          # Check if the tag is part of the main branch history
           SHA="$(git rev-list -n1 "$TAG")"
           git fetch origin main --prune
           if git merge-base --is-ancestor "$SHA" "origin/main"; then
-            echo "✅ $TAG is on main"
+            echo "✅ Tag '$TAG' is on the main branch"
           else
-            echo "❌ $TAG is not on main"; exit 1
+            echo "❌ Tag '$TAG' is not on the main branch"
+            exit 1
           fi
 
       - name: Set up git-cliff
         uses: kenji-miyake/setup-git-cliff@v2
 
-      - name: Update CHANGELOG.md (prepend single release section)
+      - name: Generate CHANGELOG.md
         run: |
-          set -euo pipefail
-          TAG="${{ github.event.inputs.tag }}"
-      
-          # If there is no changelog yet, create one (with header+preamble) for this tag only.
-          if [ ! -f CHANGELOG.md ]; then
-            git-cliff --config cliff.toml --tag "$TAG" --output CHANGELOG.md
-          else
-            # Prepend only the new release section (no header/footer), keeping existing content intact.
-            git-cliff --config cliff.toml \
-              --tag "$TAG" \
-              --strip "all" \
-              --prepend CHANGELOG.md
-          fi
-      
+          # Regenerate the entire changelog from all tags. This is the most reliable method
+          # as it avoids formatting issues that can occur when prepending content.
+          git-cliff --config cliff.toml --output CHANGELOG.md
+          # Add the modified file to the git staging area.
           git add CHANGELOG.md
 
-      - name: Git identity
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Create PR
+      - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
+          # The user and email for the commit (replaces the separate git config step)
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          # Create a new branch for the changelog changes
           branch: chore/update-changelog-${{ github.event.inputs.tag }}
-          title: "chore(changelog): add ${{ github.event.inputs.tag }}"
-          commit-message: "chore(changelog): add ${{ github.event.inputs.tag }}"
-          body: "Automated changelog update for ${{ github.event.inputs.tag }}."
+          # The base branch for the PR
           base: main
+          # PR and commit details
+          title: "chore(changelog): update for ${{ github.event.inputs.tag }}"
+          commit-message: "chore(changelog): update for ${{ github.event.inputs.tag }}"
+          body: "Automated changelog update for the `${{ github.event.inputs.tag }}` release."
+          # Labels and other PR options
           labels: chore,changelog,automation
           draft: false
-
