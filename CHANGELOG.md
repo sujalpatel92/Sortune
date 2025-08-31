@@ -1,5 +1,77 @@
 # Changelog
 
+## [Unreleased]
+
+
+
+### Fixed
+
+- Allow multiple --strip arguments in git-cliff command (96324e8…)
+
+- Proper strip command value (fe2a9e3…)
+
+
+
+## [0.0.4] - 2025-08-31
+
+
+
+### Added
+
+- Add AGENT_ONBOARDING.md for AI agents (392cdfe…)
+
+- integrate YouTube Music via ytmusicapi across API and UI (897afb1…)
+
+- Implement YouTube Music playlist import and model updates (99c5e3a…)
+
+- enable persistence with volume and appendonly mode (78e1fe9…)
+
+- implement LLM-powered playlist name suggestions (28a1547…)
+
+
+
+### Build/CI
+
+- prepend single release section and set PR metadata (ec4a9ae…)
+
+- export SETUPTOOLS_SCM_PRETEND_VERSION from latest tag (6c8e5c2…)
+
+- fix shell syntax and export version/compose env (18520fc…)
+
+
+
+### Changed
+
+- migrate to src/ layout for all Python packages (d827a2d…)
+
+
+
+### Chore
+
+- add v0.0.3 (8442efd…)
+
+- cleanup duplicates (db3b9b9…)
+
+- add repo state generator and bump versions to 0.0.3 (110bec4…)
+
+- improve type hints in LangChain LLM provider (9420acf…)
+
+
+
+### Docs
+
+- rewrite AGENT_ONBOARDING with quickstart, versioning, and CI details (1731e2e…)
+
+- add project documentation for development guidelines and setup (5bfdaae…)
+
+
+
+### Tests
+
+- add live API and client mapping tests; update fixtures (3b03517…)
+
+
+
 ## [0.0.3] - 2025-08-24
 
 
@@ -103,3 +175,7 @@
 - fix E501 line length errors in code (014be7f…)
 
 - repair git-cliff template formatting and parsing (6b2e482…)
+
+
+
+
