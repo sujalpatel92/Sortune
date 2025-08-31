@@ -25,7 +25,7 @@ class LangChainLLM(BaseLLM):
         self._model_id = model
         self._backend = backend
         self._default_temperature = default_temperature
-        self._chat = None  # lazy
+        self._chat: Any | None = None  # lazy
 
     # ---------- Public API ----------
     def generate(
@@ -63,13 +63,13 @@ class LangChainLLM(BaseLLM):
         return content if isinstance(content, str) else str(msg)
 
     # ---------- Internals ----------
-    def _chat_model(self):
+    def _chat_model(self) -> Any:
         if self._chat is not None:
             return self._chat
 
         if self._backend == "openai":
             try:
-                from langchain_openai import ChatOpenAI  # type: ignore
+                from langchain_openai import ChatOpenAI
             except Exception as e:  # pragma: no cover
                 raise LLMRuntimeError(
                     "langchain-openai is not installed. Add 'langchain-openai' to packages/ai "
