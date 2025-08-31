@@ -77,7 +77,7 @@ scripts/dev.sh seed
 
 # Development Conventions
 
-*   **Monorepo Structure:** The project is organized as a monorepo with distinct applications (`apps/*`) and shared packages (`packages/*`).
+*   **Monorepo Structure:** The project is organized as a monorepo with distinct applications (`apps/*`) and shared packages (`packages/*`). Each Python package/app uses a `src/` layout (e.g., `apps/api/src/sortune_api`).
 *   **Testing:** The project uses `pytest` for both unit and integration tests. Tests are located in the `tests/` directory. To run all tests, use:
     ```bash
     scripts/dev.sh test
@@ -94,9 +94,9 @@ scripts/dev.sh seed
     ```bash
     scripts/dev.sh all
     ```
-*   **YouTube Music Integration:** The `YTMusicClient` in `packages/adapters/sortune_adapters/ytmusic/client.py` handles interaction with the YouTube Music API. It requires OAuth credentials, which are configured via environment variables (`.env` file). The client is fully implemented and can fetch playlists and tracks.
+*   **YouTube Music Integration:** The `YTMusicClient` in `packages/adapters/src/sortune_adapters/ytmusic/client.py` handles interaction with the YouTube Music API. It requires OAuth credentials, which are configured via environment variables (`.env` file). The client is fully implemented and can fetch playlists and tracks.
 *   **AI Integration:**
-    - Provider abstraction and config under `packages/ai/sortune_ai/` (BaseLLM, factory, providers)
+    - Provider abstraction and config under `packages/ai/src/sortune_ai/` (BaseLLM, factory, providers)
     - Prompt templates and Pydantic schemas for playlist naming
     - JSON Schema-constrained generation for reliable outputs
     - Python helper: `from sortune_ai import generate_playlist_name_suggestions`

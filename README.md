@@ -19,13 +19,13 @@ a FastAPI backend, a background worker, and a Streamlit UI.
 ```text
 Sortune/
 ├─ apps/
-│  ├─ api/                 # FastAPI service
-│  ├─ worker/              # RQ worker (background jobs)
+│  ├─ api/                 # FastAPI service (package under src/)
+│  ├─ worker/              # RQ worker (package under src/)
 │  └─ ui/                  # Streamlit demo UI
 ├─ packages/
-│  ├─ core/                # Domain models, services, rules
-│  ├─ adapters/            # Integrations (Redis, YT Music)
-│  └─ ai/                  # Prompts, schemas, LLM utilities
+│  ├─ core/                # Domain models, services, rules (under src/)
+│  ├─ adapters/            # Integrations (Redis, YT Music) (under src/)
+│  └─ ai/                  # Prompts, schemas, LLM utilities (under src/)
 ├─ infra/                  # Dockerfiles + docker compose
 ├─ scripts/                # Helpers (bootstrap, enqueue, dev.sh)
 ├─ tests/                  # Unit + integration tests
@@ -37,8 +37,10 @@ Sortune/
 └─ README.md
 ```
 
+* Each Python package/app uses a `src/` layout (e.g., `apps/api/src/sortune_api`).
 * Each **subproject** (apps/api, apps/worker, apps/ui, packages/\*) has its own `pyproject.toml`.
 * The **root `pyproject.toml`** is tooling-only (`ruff`, `mypy`, `pytest`, etc.).
+* The `uv.lock` lockfile is committed. After changing dependencies, run `uv lock` at the repo root and commit the updated lock.
 
 ---
 
@@ -140,6 +142,20 @@ scripts/dev.sh typecheck  # mypy
 scripts/dev.sh test       # pytest
 scripts/dev.sh all        # fmt + typecheck + test
 ```
+
+---
+
+## Lockfile
+
+- File: `uv.lock` is committed for reproducible dependency resolution.
+- Refresh after changing any subproject `pyproject.toml` dependencies:
+
+  ```bash
+  uv lock
+  ```
+
+- Review and commit the updated `uv.lock`.
+- CI currently installs via `uv pip` and editable installs; the lockfile supports consistent local/Docker builds.
 
 ---
 

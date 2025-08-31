@@ -39,9 +39,11 @@ Sortune/
 **Principles**
 
 * Keep runnable **apps** and reusable **packages** separate.
+* Use a `src/` layout for Python packages/apps (e.g., `apps/api/src/sortune_api`).
 * Each subproject has its **own** `pyproject.toml`.
   The **root** `pyproject.toml` is **tooling only**—don’t add app/package deps there.
-* Dev uses editable installs (`pip install -e`) so code changes reflect immediately.
+* Dev uses editable installs with `uv` (`uv pip install -e …`) so code changes reflect immediately.
+* The `uv.lock` lockfile is committed; after dependency changes, run `uv lock` at repo root and commit the update.
 
 ## 3) First 5 minutes (local dev)
 
@@ -78,6 +80,7 @@ scripts/dev.sh down
 * `make typecheck` — mypy
 * `make test` — pytest (unit + integration)
 * `make dev-up` / `make dev-down` — compose up/down
+* `uv lock` — refresh `uv.lock` after dependency changes; commit the lockfile
 
 ## 5) Versioning & releases (important for agents)
 
@@ -100,10 +103,10 @@ export SETUPTOOLS_SCM_PRETEND_VERSION := $(VERSION)
 
 ## 6) Key entry points
 
-* API: `apps/api/sortune_api/main.py`
+* API: `apps/api/src/sortune_api/main.py`
 * UI: `apps/ui/streamlit_app/app.py`
-* AI: `packages/ai/sortune_ai/` (BaseLLM, providers, prompts, schemas)
-* Worker jobs: `apps/worker/sortune_worker/jobs/` (see `demo.py`)
+* AI: `packages/ai/src/sortune_ai/` (BaseLLM, providers, prompts, schemas)
+* Worker jobs: `apps/worker/src/sortune_worker/jobs/` (see `demo.py`)
 
 ## 7) Important do’s and don’ts
 
