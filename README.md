@@ -73,17 +73,33 @@ Sortune/
    REDIS_URL=redis://localhost:6379/0 scripts/dev.sh seed
    ```
 
-4. **Run API and UI (in separate terminals)**
+4. (Optional) Enable AI name suggestions
+
+   Set your OpenAI key and LLM config in `.env` (see `.env.example`):
+
+   ```bash
+   export OPENAI_API_KEY=sk-...
+   export SORTUNE_LLM_PROVIDER=langchain
+   export SORTUNE_LLM_BACKEND=openai
+   export SORTUNE_LLM_MODEL=gpt-4o-mini
+   export SORTUNE_LLM_TEMPERATURE=0.6
+   # Optional deterministic seed
+   # export SORTUNE_LLM_SEED=42
+   ```
+
+5. **Run API and UI (in separate terminals)**
 
    ```bash
    scripts/dev.sh api
    scripts/dev.sh ui
    ```
 
-5. Open:
+6. Open:
 
    * API docs → [http://localhost:8000/docs](http://localhost:8000/docs)
-   * UI → [http://localhost:8501](http://localhost:8501) → use playlist ID `demo` → Load → Sort by title
+* UI → [http://localhost:8501](http://localhost:8501)
+  - Use playlist ID `demo` → Load → Sort by title
+  - Try the expander: “AI — Generate playlist name suggestions”
 
 ---
 
@@ -145,7 +161,10 @@ scripts/dev.sh all
 
 * **Core**: Pydantic models (`Playlist`, `Track`), rules (`ByTitle`), service layer
 * **Adapters**: Redis repo, YT Music client (stub now, real API later)
-* **AI**: Pydantic schemas for playlist naming, prompt templates
+* **AI**: Provider-agnostic LLM layer (BaseLLM), LangChain(OpenAI) provider, prompt templates, schema-constrained generation for playlist naming.
+  - Helper: `sortune_ai.generate_playlist_name_suggestions(context, count, seed)`
+  - API: `POST /ai/suggest-playlist-names` → returns `PlaylistSuggestions`
+  - UI: Streamlit panel to generate suggestions
 * **API**: FastAPI app exposing `/health`, `/playlists/{id}`, `/playlists/{id}/sort`
 * **Worker**: RQ worker running jobs (e.g., demo seeding)
 * **UI**: Streamlit app to load/sort playlists interactively
@@ -155,11 +174,11 @@ scripts/dev.sh all
 ## Status
 
 ✅ Skeleton repo is complete: API, Worker, UI, Core, Adapters, AI packages, infra, dev scripts, tests.
+✅ LLM-based playlist naming integrated (provider abstraction, env config, API + UI).
 ⚠️ Next steps:
 
 * Flesh out real **YT Music adapter** with [ytmusicapi](https://github.com/sigma67/ytmusicapi)
 * Add more **rules** (artist diversity, freshness, tempo)
-* Connect **LLM title generator** from `packages/ai/prompts`
 * Persist to Postgres (optional)
 
 ---

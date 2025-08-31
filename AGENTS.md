@@ -40,3 +40,12 @@
 - Config via `.env` (see `.env.example`); app settings use `SORTUNE_` prefix (e.g., `SORTUNE_REDIS_URL=redis://localhost:6379/0`).
 - Don’t commit real API keys or OAuth secrets. Use Docker Compose (`make dev-up`) for a reproducible local stack.
 
+### AI / LLM Configuration
+- Provider selection via env:
+  - `SORTUNE_LLM_PROVIDER=langchain`
+  - `SORTUNE_LLM_BACKEND=openai`
+  - `SORTUNE_LLM_MODEL=gpt-4o-mini`
+  - `SORTUNE_LLM_TEMPERATURE=0.6`
+  - Optional: `SORTUNE_LLM_SEED=42`
+- Credentials: `OPENAI_API_KEY` must be set for the OpenAI backend.
+- Public API: `POST /ai/suggest-playlist-names` returns `PlaylistSuggestions`.

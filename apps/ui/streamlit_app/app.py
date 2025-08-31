@@ -5,6 +5,7 @@ import streamlit as st
 from redis import Redis
 from sortune_adapters.storage.redis_repo import RedisPlaylistRepo
 from sortune_adapters.ytmusic.client import YTMusicClient
+from sortune_ai import generate_playlist_name_suggestions
 from sortune_core.rules.simple import ByTitle
 
 # ---- Config ----
@@ -162,6 +163,36 @@ with cols[2]:
         load_playlist(pid)
 
 st.markdown("---")
+
+# ---- AI: Playlist name suggestions ----
+with st.expander("AI — Generate playlist name suggestions", expanded=False):
+    ctx = st.text_area(
+        "Context (artists, albums, vibes, season, etc.)",
+        placeholder="Billie Eilish, weekend drive, late summer, airy synths",
+    )
+    c1, c2, c3 = st.columns([1, 1, 1])
+    with c1:
+        count = st.slider("How many?", min_value=1, max_value=10, value=5)
+    with c2:
+        use_seed = st.checkbox("Use seed", value=False)
+    with c3:
+        seed_val = st.number_input("Seed", min_value=0, value=42, step=1, disabled=not use_seed)
+
+    if st.button("Generate suggestions"):
+        if not ctx.strip():
+            st.warning("Please provide some context.")
+        else:
+            try:
+                suggestions = generate_playlist_name_suggestions(
+                    context=ctx.strip(), count=int(count), seed=int(seed_val) if use_seed else None
+                )
+                for i, item in enumerate(suggestions.names, start=1):
+                    st.write(f"{i}. {item.title}")
+                    if item.subtitle:
+                        st.caption(item.subtitle)
+                    st.caption(item.rationale)
+            except Exception as e:
+                st.error(str(e))
 
 # ---- Playlist view ----
 pl = st.session_state.get("pl")
